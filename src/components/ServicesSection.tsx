@@ -4,45 +4,45 @@ import { Link } from "react-router-dom";
 
 const services = [
   {
-    icon: Scissors,
-    title: "Hair Styling",
-    description: "Expert cuts, colors, and treatments for all hair types",
-    price: "From ₹500",
+    icon: Sparkles,
+    title: "Facial Treatments",
+    description: "Korean Glass Facial, Lotus Facial, O+ Facial, Aroma Facial & more",
+    price: "From ₹499",
     color: "from-primary/20 to-primary/5",
   },
   {
-    icon: Sparkles,
-    title: "Facial Treatments",
-    description: "Rejuvenating facials for glowing, healthy skin",
-    price: "From ₹800",
-    color: "from-accent/20 to-accent/5",
-  },
-  {
     icon: Heart,
-    title: "Bridal Makeup",
-    description: "Make your special day unforgettable",
-    price: "From ₹5000",
+    title: "Bridal & Party Makeup",
+    description: "HD Bridal, Engagement, Party Makeup by expert artists",
+    price: "From ₹1200",
     color: "from-rose-gold/20 to-rose-gold/5",
   },
   {
+    icon: Scissors,
+    title: "Hair Services",
+    description: "Hair Spa, Hair Cut, Hair Wash, L'oreal Treatments",
+    price: "From ₹200",
+    color: "from-accent/20 to-accent/5",
+  },
+  {
     icon: Leaf,
-    title: "Spa & Wellness",
-    description: "Relaxing massages and body treatments",
-    price: "From ₹1500",
+    title: "Body Spa & Massage",
+    description: "Full Body Massage, Head Massage, Relaxing treatments",
+    price: "From ₹500",
     color: "from-champagne/30 to-champagne/5",
   },
   {
     icon: Crown,
     title: "Nail Art",
-    description: "Creative manicures and pedicures",
-    price: "From ₹400",
+    description: "Nail Extension, Gel Polish, Acrylic Extension, Manicure & Pedicure",
+    price: "From ₹299",
     color: "from-gold/20 to-gold/5",
   },
   {
     icon: Star,
     title: "Waxing & Threading",
-    description: "Smooth, hair-free skin with gentle care",
-    price: "From ₹200",
+    description: "Full Body Wax, Rica Wax, D-Tan, Threading, Upper Lip, Forehead",
+    price: "From ₹50",
     color: "from-blush to-blush/5",
   },
 ];
@@ -65,7 +65,7 @@ const ServicesSection = () => {
             Beauty Treatments
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Discover our range of premium beauty services designed to pamper you
+            Discover our range of premium beauty services at Aura Bliss Salon designed to pamper you
             and bring out your natural radiance.
           </p>
         </motion.div>

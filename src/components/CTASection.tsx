@@ -23,12 +23,12 @@ const CTASection = () => {
           </div>
 
           <h2 className="font-display text-4xl md:text-5xl font-bold text-primary-foreground mb-6">
-            Get 20% Off Your First Visit
+            Book Your Appointment Today
           </h2>
           
           <p className="text-primary-foreground/90 text-lg mb-10">
-            Join our family of satisfied clients and experience the luxury you deserve.
-            Book your first appointment today and enjoy exclusive discounts.
+            Join our family of satisfied clients at Aura Bliss Salon and experience the luxury you deserve.
+            Call us at 6306532040, 8874573050, 7985666898 or book online.
           </p>
 
           <Link to="/booking">

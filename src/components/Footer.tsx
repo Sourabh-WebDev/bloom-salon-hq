@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { Sparkles, Instagram, Facebook, Twitter, MapPin, Phone, Mail } from "lucide-react";
+import { Instagram, Facebook, Twitter, MapPin, Phone, Mail } from "lucide-react";
+import logo from "@/assets/logo.jpeg";
 
 const Footer = () => {
   return (
@@ -7,14 +8,14 @@ const Footer = () => {
       <div className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           <div>
-            <Link to="/" className="flex items-center gap-2 mb-6">
-              <Sparkles className="w-8 h-8 text-primary" />
+            <Link to="/" className="flex items-center gap-3 mb-6">
+              <img src={logo} alt="Aura Bliss Salon Logo" className="w-12 h-12 rounded-full object-cover" />
               <span className="font-display text-2xl font-semibold text-foreground">
-                Bella Rosa
+                Aura Bliss Salon
               </span>
             </Link>
             <p className="text-muted-foreground mb-6">
-              Your destination for luxury beauty treatments and self-care experiences.
+              Your destination for luxury beauty treatments and premium salon services.
             </p>
             <div className="flex gap-4">
               <a href="#" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
@@ -45,7 +46,7 @@ const Footer = () => {
           <div>
             <h4 className="font-display font-semibold text-foreground mb-6">Services</h4>
             <ul className="space-y-3">
-              {["Hair Styling", "Facials", "Bridal Makeup", "Spa", "Nail Art", "Waxing"].map((service) => (
+              {["Facial", "Hair Spa", "Bridal Makeup", "Manicure & Pedicure", "Waxing", "Threading"].map((service) => (
                 <li key={service}>
                   <Link to="/services" className="text-muted-foreground hover:text-primary transition-colors">
                     {service}
@@ -61,23 +62,27 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-primary mt-0.5" />
                 <span className="text-muted-foreground">
-                  123 Beauty Lane, Fashion District, Mumbai 400001
+                  Rajendra Nagar, Near Gauriya Math, Lucknow
                 </span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary" />
-                <span className="text-muted-foreground">+91 98765 43210</span>
+                <div className="text-muted-foreground">
+                  <div>6306532040</div>
+                  <div>8874573050</div>
+                  <div>7985666898</div>
+                </div>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-primary" />
-                <span className="text-muted-foreground">hello@bellarosa.com</span>
+                <span className="text-muted-foreground">aurablisssalon@gmail.com</span>
               </li>
             </ul>
           </div>
         </div>
 
         <div className="border-t border-border mt-12 pt-8 text-center text-muted-foreground">
-          <p>© 2024 Bella Rosa Beauty Salon. All rights reserved.</p>
+          <p>© 2024 Aura Bliss Salon. All rights reserved.</p>
         </div>
       </div>
     </footer>

@@ -137,12 +137,33 @@ const initialBookings: Booking[] = [
 ];
 
 const initialServices: Service[] = [
-  { id: "1", name: "Hair Cut & Styling", category: "Hair", price: 500, duration: "45 min", description: "Expert hair cutting and styling", isActive: true },
-  { id: "2", name: "Hair Coloring", category: "Hair", price: 1500, duration: "2 hrs", description: "Professional hair coloring services", isActive: true },
-  { id: "3", name: "Bridal Makeup", category: "Makeup", price: 5000, duration: "2 hrs", description: "Complete bridal makeover", isActive: true },
-  { id: "4", name: "Classic Facial", category: "Facial", price: 800, duration: "45 min", description: "Deep cleansing facial", isActive: true },
-  { id: "5", name: "Full Body Spa", category: "Spa", price: 3500, duration: "3 hrs", description: "Relaxing full body spa treatment", isActive: true },
-  { id: "6", name: "Manicure", category: "Nails", price: 400, duration: "30 min", description: "Classic manicure service", isActive: true },
+  { id: "1", name: "Threading", category: "Threading", price: 50, duration: "15 min", description: "Eyebrow, upper lip, forehead threading", isActive: true },
+  { id: "2", name: "Korean Glass Facial", category: "Facial", price: 800, duration: "45 min", description: "Korean glass skin facial treatment", isActive: true },
+  { id: "3", name: "Lotus Facial", category: "Facial", price: 600, duration: "45 min", description: "Lotus herbal facial for glowing skin", isActive: true },
+  { id: "4", name: "Aroma Facial", category: "Facial", price: 500, duration: "45 min", description: "Relaxing aroma facial treatment", isActive: true },
+  { id: "5", name: "O+ Facial", category: "Facial", price: 700, duration: "50 min", description: "Oxygen facial for skin rejuvenation", isActive: true },
+  { id: "6", name: "Hair Spa", category: "Hair", price: 400, duration: "45 min", description: "Deep conditioning hair spa treatment", isActive: true },
+  { id: "7", name: "L'oreal Hair Spa", category: "Hair", price: 600, duration: "60 min", description: "Premium L'oreal hair spa treatment", isActive: true },
+  { id: "8", name: "Hair Cut", category: "Hair", price: 200, duration: "30 min", description: "Professional hair cutting service", isActive: true },
+  { id: "9", name: "Bridal Makeup", category: "Makeup", price: 5000, duration: "2 hrs", description: "Complete bridal makeover", isActive: true },
+  { id: "10", name: "HD Bridal Makeup", category: "Makeup", price: 7000, duration: "2.5 hrs", description: "HD bridal makeup for flawless look", isActive: true },
+  { id: "11", name: "Party Makeup", category: "Makeup", price: 1200, duration: "1 hr", description: "Party ready makeup", isActive: true },
+  { id: "12", name: "HD Party Makeup", category: "Makeup", price: 2000, duration: "1.5 hrs", description: "HD party makeup", isActive: true },
+  { id: "13", name: "Engagement Makeup", category: "Makeup", price: 4000, duration: "2 hrs", description: "Engagement ceremony makeup", isActive: true },
+  { id: "14", name: "Manicure", category: "Nails", price: 300, duration: "30 min", description: "Classic manicure service", isActive: true },
+  { id: "15", name: "Pedicure", category: "Nails", price: 400, duration: "40 min", description: "Classic pedicure service", isActive: true },
+  { id: "16", name: "Nail Extension", category: "Nails", price: 600, duration: "1 hr", description: "Beautiful nail extensions", isActive: true },
+  { id: "17", name: "Gel Polish", category: "Nails", price: 299, duration: "30 min", description: "Long-lasting gel nail polish", isActive: true },
+  { id: "18", name: "Acrylic Extension", category: "Nails", price: 1299, duration: "1.5 hrs", description: "Acrylic nail extensions", isActive: true },
+  { id: "19", name: "Full Hand Wax", category: "Waxing", price: 200, duration: "30 min", description: "Full hand waxing service", isActive: true },
+  { id: "20", name: "Full Body Wax", category: "Waxing", price: 800, duration: "1.5 hrs", description: "Full body waxing service", isActive: true },
+  { id: "21", name: "Rica Full Body Wax", category: "Waxing", price: 1200, duration: "2 hrs", description: "Premium Rica waxing", isActive: true },
+  { id: "22", name: "Half Leg Wax", category: "Waxing", price: 150, duration: "20 min", description: "Half leg waxing", isActive: true },
+  { id: "23", name: "Face D-Tan", category: "D-Tan", price: 200, duration: "20 min", description: "Face de-tan treatment", isActive: true },
+  { id: "24", name: "Full Body D-Tan", category: "D-Tan", price: 600, duration: "1 hr", description: "Full body de-tan treatment", isActive: true },
+  { id: "25", name: "Head Massage", category: "Massage", price: 200, duration: "20 min", description: "Relaxing head massage", isActive: true },
+  { id: "26", name: "Full Body Massage", category: "Massage", price: 1000, duration: "1 hr", description: "Full body relaxing massage", isActive: true },
+  { id: "27", name: "Cleanup", category: "Facial", price: 300, duration: "30 min", description: "Basic face cleanup", isActive: true },
 ];
 
 const initialCustomers: Customer[] = [
@@ -153,9 +174,9 @@ const initialCustomers: Customer[] = [
 ];
 
 const initialOffers: Offer[] = [
-  { id: "1", title: "First Visit Discount", description: "20% off on first visit", discountPercent: 20, validFrom: "2024-12-01", validTo: "2024-12-31", isActive: true, usageCount: 45 },
-  { id: "2", title: "Bridal Season Special", description: "15% off on bridal packages", discountPercent: 15, validFrom: "2024-12-01", validTo: "2025-02-28", isActive: true, usageCount: 12 },
-  { id: "3", title: "Spa Sunday", description: "10% off on all spa services every Sunday", discountPercent: 10, validFrom: "2024-12-01", validTo: "2025-01-31", isActive: true, usageCount: 28 },
+  { id: "1", title: "Winter Special Package", description: "Cleanup, Full Hand Wax, Manicure, Threading, Forehead, Upper Lip, Head Massage - Was ₹1299", discountPercent: 54, validFrom: "2024-12-01", validTo: "2025-01-31", isActive: true, usageCount: 45 },
+  { id: "2", title: "Glow Up Package", description: "Facial, Full Hand Wax, Half Leg Wax, Manicure, Head Massage, Threading, Upper Lip, Forehead - Was ₹1699", discountPercent: 47, validFrom: "2024-12-01", validTo: "2025-01-31", isActive: true, usageCount: 32 },
+  { id: "3", title: "Complete Care Package", description: "Hair Spa, Hair Cut, Head Massage, Cleanup, Full Hand Wax, Threading, Upper Lip, Forehead - Was ₹2299", discountPercent: 48, validFrom: "2024-12-01", validTo: "2025-01-31", isActive: true, usageCount: 28 },
 ];
 
 export const useAdminStore = create<AdminStore>((set) => ({

@@ -21,7 +21,7 @@ const HeroSection = () => {
           >
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm">
               <Sparkles className="w-4 h-4" />
-              Welcome to Luxury Beauty
+              Welcome to Aura Bliss Salon
             </span>
           </motion.div>
 
@@ -41,7 +41,7 @@ const HeroSection = () => {
             transition={{ duration: 0.8, delay: 0.6 }}
             className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto"
           >
-            Experience the finest beauty treatments in a luxurious atmosphere. 
+            Experience the finest beauty treatments at Aura Bliss Salon. 
             Our expert stylists are dedicated to enhancing your natural radiance.
           </motion.p>
 
@@ -71,9 +71,9 @@ const HeroSection = () => {
             className="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto"
           >
             {[
-              { number: "10+", label: "Years Experience" },
-              { number: "5000+", label: "Happy Clients" },
-              { number: "50+", label: "Expert Stylists" },
+              { number: "5+", label: "Years Experience" },
+              { number: "2000+", label: "Happy Clients" },
+              { number: "30+", label: "Services" },
             ].map((stat, index) => (
               <div key={index} className="text-center">
                 <div className="font-display text-3xl md:text-4xl font-bold text-primary">

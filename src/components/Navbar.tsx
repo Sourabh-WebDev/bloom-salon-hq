@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Calendar, Sparkles, Menu, X } from "lucide-react";
+import { Calendar, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import logo from "@/assets/logo.jpeg";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -24,10 +25,10 @@ const Navbar = () => {
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
-          <Link to="/" className="flex items-center gap-2">
-            <Sparkles className="w-8 h-8 text-primary" />
-            <span className="font-display text-2xl font-semibold text-foreground">
-              Bella Rosa
+          <Link to="/" className="flex items-center gap-3">
+            <img src={logo} alt="Aura Bliss Salon Logo" className="w-12 h-12 rounded-full object-cover" />
+            <span className="font-display text-xl md:text-2xl font-semibold text-foreground">
+              Aura Bliss Salon
             </span>
           </Link>
 
