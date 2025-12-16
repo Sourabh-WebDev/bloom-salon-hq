@@ -5,14 +5,14 @@ const testimonials = [
   {
     name: "Priya Sharma",
     role: "Regular Client",
-    content: "Bella Rosa transformed my look completely! The team is so professional and the ambiance is absolutely divine.",
+    content: "Aura Bliss Salon transformed my look completely! The team is so professional and the ambiance is absolutely divine.",
     rating: 5,
     image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
   },
   {
     name: "Ananya Patel",
     role: "Bridal Client",
-    content: "My bridal makeup was flawless. Everyone complimented how beautiful I looked. Thank you Bella Rosa!",
+    content: "My bridal makeup was flawless. Everyone complimented how beautiful I looked. Thank you Aura Bliss Salon!",
     rating: 5,
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
   },
