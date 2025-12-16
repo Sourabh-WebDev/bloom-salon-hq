@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard,
@@ -7,17 +7,21 @@ import {
   Users,
   CreditCard,
   Gift,
-  Sparkles,
+  Clock,
   LogOut,
   ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/authStore";
+import { toast } from "sonner";
+import logo from "@/assets/image.png";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
   { icon: Calendar, label: "Bookings", path: "/admin/bookings" },
   { icon: Scissors, label: "Services", path: "/admin/services" },
   { icon: Users, label: "Customers", path: "/admin/customers" },
+  { icon: Clock, label: "Attendance", path: "/admin/attendance" },
   { icon: CreditCard, label: "Payments", path: "/admin/payments" },
   { icon: Gift, label: "Offers", path: "/admin/offers" },
 ];
@@ -29,6 +33,14 @@ interface AdminSidebarProps {
 
 const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out successfully!");
+    navigate("/admin/login");
+  };
 
   return (
     <motion.aside
@@ -44,11 +56,14 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
         {/* Logo */}
         <div className="p-6 border-b border-border">
           <Link to="/" className="flex items-center gap-3">
-            <Sparkles className="w-8 h-8 text-primary flex-shrink-0" />
+            {/* <Sparkles className="w-8 h-8 text-primary flex-shrink-0" /> */}
+            <img src={logo} alt="Aura Bliss Salon Logo" className="w-12 h-12 text-primary" />
             {!isCollapsed && (
-              <span className="font-display text-xl font-semibold text-foreground">
-                Bella Rosa
-              </span>
+              <Link to="/admin" className="flex items-center gap-3">
+                <span className="font-display text-xl md:text-2xl font-semibold text-foreground">
+                  Aura Bliss Salon
+                </span>
+              </Link>
             )}
           </Link>
         </div>
@@ -77,13 +92,13 @@ const AdminSidebar = ({ isCollapsed, onToggle }: AdminSidebarProps) => {
 
         {/* Footer */}
         <div className="p-4 border-t border-border">
-          <Link
-            to="/"
-            className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-all"
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:bg-secondary hover:text-foreground transition-all"
           >
             <LogOut className="w-5 h-5 flex-shrink-0" />
-            {!isCollapsed && <span className="font-medium">Back to Site</span>}
-          </Link>
+            {!isCollapsed && <span className="font-medium">Logout</span>}
+          </button>
 
           {onToggle && (
             <button
