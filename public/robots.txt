@@ -2,4 +2,4 @@ User-agent: *
 Allow: /
 Disallow: /admin/
 
-Sitemap: https://aurablisssalon.com/sitemap.xml
+Sitemap: https://aura-bliss-salon.vercel.app/sitemap.xml
