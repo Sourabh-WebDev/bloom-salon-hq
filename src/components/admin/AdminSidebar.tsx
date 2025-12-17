@@ -10,6 +10,7 @@ import {
   Clock,
   LogOut,
   ChevronLeft,
+  Star,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/authStore";
@@ -21,6 +22,7 @@ const menuItems = [
   { icon: Calendar, label: "Bookings", path: "/admin/bookings" },
   { icon: Scissors, label: "Services", path: "/admin/services" },
   { icon: Users, label: "Customers", path: "/admin/customers" },
+  { icon: Star, label: "Reviews", path: "/admin/reviews" },
   { icon: Clock, label: "Attendance", path: "/admin/attendance" },
   { icon: CreditCard, label: "Payments", path: "/admin/payments" },
   { icon: Gift, label: "Offers", path: "/admin/offers" },

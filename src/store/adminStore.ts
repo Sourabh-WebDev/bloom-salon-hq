@@ -47,11 +47,23 @@ export interface Offer {
   usageCount: number;
 }
 
+export interface Review {
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  rating: number;
+  comment: string;
+  service?: string;
+  isApproved: boolean;
+  createdAt: string;
+}
+
 interface AdminStore {
   bookings: Booking[];
   services: Service[];
   customers: Customer[];
   offers: Offer[];
+  reviews: Review[];
   addBooking: (booking: Omit<Booking, "id" | "createdAt">) => void;
   updateBooking: (id: string, booking: Partial<Booking>) => void;
   deleteBooking: (id: string) => void;
@@ -63,6 +75,10 @@ interface AdminStore {
   addOffer: (offer: Omit<Offer, "id">) => void;
   updateOffer: (id: string, offer: Partial<Offer>) => void;
   deleteOffer: (id: string) => void;
+  addReview: (review: Omit<Review, "id" | "createdAt">) => void;
+  updateReview: (id: string, review: Partial<Review>) => void;
+  deleteReview: (id: string) => void;
+  getApprovedReviews: () => Review[];
 }
 
 const generateId = () => Math.random().toString(36).substring(2, 11);
@@ -179,11 +195,19 @@ const initialOffers: Offer[] = [
   { id: "3", title: "Complete Care Package", description: "Hair Spa, Hair Cut, Head Massage, Cleanup, Full Hand Wax, Threading, Upper Lip, Forehead - Was ₹2299", discountPercent: 48, validFrom: "2024-12-01", validTo: "2025-01-31", isActive: true, usageCount: 28 },
 ];
 
-export const useAdminStore = create<AdminStore>((set) => ({
+const initialReviews: Review[] = [
+  { id: "1", customerName: "Priya Sharma", customerEmail: "priya@email.com", rating: 5, comment: "Aura Bliss Salon transformed my look completely! The team is so professional and the ambiance is absolutely divine.", service: "Bridal Makeup", isApproved: true, createdAt: "2024-12-10" },
+  { id: "2", customerName: "Ananya Patel", customerEmail: "ananya@email.com", rating: 5, comment: "My bridal makeup was flawless. Everyone complimented how beautiful I looked. Thank you Aura Bliss Salon!", service: "HD Bridal Makeup", isApproved: true, createdAt: "2024-12-08" },
+  { id: "3", customerName: "Meera Reddy", customerEmail: "meera@email.com", rating: 5, comment: "The spa treatments here are incredibly relaxing. It's my go-to place for self-care and rejuvenation.", service: "Full Body Massage", isApproved: true, createdAt: "2024-12-05" },
+  { id: "4", customerName: "Kavya Nair", customerEmail: "kavya@email.com", rating: 4, comment: "Great service and friendly staff. Will definitely come back!", service: "Korean Glass Facial", isApproved: false, createdAt: "2024-12-15" },
+];
+
+export const useAdminStore = create<AdminStore>((set, get) => ({
   bookings: initialBookings,
   services: initialServices,
   customers: initialCustomers,
   offers: initialOffers,
+  reviews: initialReviews,
 
   addBooking: (booking) =>
     set((state) => ({
@@ -245,4 +269,24 @@ export const useAdminStore = create<AdminStore>((set) => ({
     set((state) => ({
       offers: state.offers.filter((o) => o.id !== id),
     })),
+
+  addReview: (review) =>
+    set((state) => ({
+      reviews: [
+        ...state.reviews,
+        { ...review, id: generateId(), createdAt: new Date().toISOString().split("T")[0] },
+      ],
+    })),
+
+  updateReview: (id, review) =>
+    set((state) => ({
+      reviews: state.reviews.map((r) => (r.id === id ? { ...r, ...review } : r)),
+    })),
+
+  deleteReview: (id) =>
+    set((state) => ({
+      reviews: state.reviews.filter((r) => r.id !== id),
+    })),
+
+  getApprovedReviews: () => get().reviews.filter((r) => r.isApproved),
 }));

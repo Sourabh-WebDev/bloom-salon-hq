@@ -1,31 +1,27 @@
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
+import { useAdminStore } from "@/store/adminStore";
 
-const testimonials = [
-  {
-    name: "Priya Sharma",
-    role: "Regular Client",
-    content: "Aura Bliss Salon transformed my look completely! The team is so professional and the ambiance is absolutely divine.",
-    rating: 5,
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
-  },
-  {
-    name: "Ananya Patel",
-    role: "Bridal Client",
-    content: "My bridal makeup was flawless. Everyone complimented how beautiful I looked. Thank you Aura Bliss Salon!",
-    rating: 5,
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-  },
-  {
-    name: "Meera Reddy",
-    role: "VIP Member",
-    content: "The spa treatments here are incredibly relaxing. It's my go-to place for self-care and rejuvenation.",
-    rating: 5,
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
-  },
+const defaultImages = [
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face",
+  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
 ];
 
 const TestimonialsSection = () => {
+  const { getApprovedReviews } = useAdminStore();
+  const approvedReviews = getApprovedReviews().slice(0, 3); // Show only top 3 reviews
+
+  const testimonials = approvedReviews.map((review, index) => ({
+    name: review.customerName,
+    role: review.service ? `${review.service} Client` : "Valued Client",
+    content: review.comment,
+    rating: review.rating,
+    image: defaultImages[index % defaultImages.length],
+  }));
+
   return (
     <section className="py-24 bg-gradient-blush relative">
       <div className="container mx-auto px-4">
@@ -45,7 +41,7 @@ const TestimonialsSection = () => {
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {testimonials.map((testimonial, index) => (
+          {testimonials.length > 0 ? testimonials.map((testimonial, index) => (
             <motion.div
               key={testimonial.name}
               initial={{ opacity: 0, y: 30 }}
@@ -78,7 +74,11 @@ const TestimonialsSection = () => {
                 </div>
               </div>
             </motion.div>
-          ))}
+          )) : (
+            <div className="col-span-3 text-center py-12">
+              <p className="text-muted-foreground text-lg">No reviews available yet. Be the first to share your experience!</p>
+            </div>
+          )}
         </div>
       </div>
     </section>
