@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Phone, Mail, MapPin, Clock } from "lucide-react";
+import { FaPhone, FaEnvelope, FaMapMarkerAlt, FaClock } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,7 +76,7 @@ const ContactPage = () => {
               <h2 className="font-display text-2xl font-semibold mb-6">Contact Information</h2>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <Phone className="w-6 h-6 text-primary mt-1" />
+                  <FaPhone className="w-6 h-6 text-primary mt-1" />
                   <div>
                     <h3 className="font-semibold">Phone</h3>
                     <div className="text-muted-foreground">
@@ -88,7 +88,7 @@ const ContactPage = () => {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <Mail className="w-6 h-6 text-primary mt-1" />
+                  <FaEnvelope className="w-6 h-6 text-primary mt-1" />
                   <div>
                     <h3 className="font-semibold">Email</h3>
                     <p className="text-muted-foreground">info@aurablisssalon.com</p>
@@ -96,7 +96,7 @@ const ContactPage = () => {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <MapPin className="w-6 h-6 text-primary mt-1" />
+                  <FaMapMarkerAlt className="w-6 h-6 text-primary mt-1" />
                   <div>
                     <h3 className="font-semibold">Address</h3>
                     <p className="text-muted-foreground">
@@ -107,7 +107,7 @@ const ContactPage = () => {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <Clock className="w-6 h-6 text-primary mt-1" />
+                  <FaClock className="w-6 h-6 text-primary mt-1" />
                   <div>
                     <h3 className="font-semibold">Hours</h3>
                     <div className="text-muted-foreground">

@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { FaArrowRight } from "react-icons/fa";
+import { GiSparkles } from "react-icons/gi";
 import { Button } from "@/components/ui/button";
 import ParticlesBackground from "./ParticlesBackground";
 
@@ -20,7 +21,7 @@ const HeroSection = () => {
             className="mb-6"
           >
             <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm">
-              <Sparkles className="w-4 h-4" />
+              <GiSparkles className="w-4 h-4" />
               Welcome to Aura Bliss Salon
             </span>
           </motion.div>
@@ -54,7 +55,7 @@ const HeroSection = () => {
             <Link to="/booking">
               <Button size="lg" className="btn-primary rounded-full px-8 py-6 text-lg shadow-glow">
                 Book Appointment
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <FaArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
             <Link to="/services">

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram, Facebook, Twitter, MapPin, Phone, Mail } from "lucide-react";
+import { FaInstagram, FaFacebookF, FaWhatsapp, FaMapMarkerAlt, FaPhone, FaEnvelope } from "react-icons/fa";
 import logo from "@/assets/logo.jpeg";
 
 const Footer = () => {
@@ -18,14 +18,14 @@ const Footer = () => {
               Your destination for luxury beauty treatments and premium salon services.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
-                <Instagram className="w-5 h-5" />
+              <a href="https://www.instagram.com/aura_bliss_salon_?igsh=MWtybG5qdDFzejVtaw==" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
+                <FaInstagram className="w-5 h-5" />
               </a>
               <a href="#" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
-                <Facebook className="w-5 h-5" />
+                <FaFacebookF className="w-5 h-5" />
               </a>
               <a href="#" className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors">
-                <Twitter className="w-5 h-5" />
+                <FaWhatsapp className="w-5 h-5" />
               </a>
             </div>
           </div>
@@ -60,13 +60,13 @@ const Footer = () => {
             <h4 className="font-display font-semibold text-foreground mb-6">Contact Us</h4>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-primary mt-0.5" />
+                <FaMapMarkerAlt className="w-5 h-5 text-primary mt-0.5" />
                 <span className="text-muted-foreground">
                   Rajendra Nagar, Near Gauriya Math, Lucknow
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-primary" />
+                <FaPhone className="w-5 h-5 text-primary" />
                 <div className="text-muted-foreground">
                   <div>6306532040</div>
                   <div>8874573050</div>
@@ -74,7 +74,7 @@ const Footer = () => {
                 </div>
               </li>
               <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-primary" />
+                <FaEnvelope className="w-5 h-5 text-primary" />
                 <span className="text-muted-foreground">aurablisssalon@gmail.com</span>
               </li>
             </ul>

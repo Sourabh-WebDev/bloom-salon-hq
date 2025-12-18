@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Calendar, Menu, X } from "lucide-react";
+import { FaCalendarAlt } from "react-icons/fa";
+import { HiMenu, HiX } from "react-icons/hi";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/logo.jpeg";
@@ -53,7 +54,7 @@ const Navbar = () => {
             </Link>
             <Link to="/booking">
               <Button className="btn-primary rounded-full px-6">
-                <Calendar className="w-4 h-4 mr-2" />
+                <FaCalendarAlt className="w-4 h-4 mr-2" />
                 Book Now
               </Button>
             </Link>
@@ -64,7 +65,7 @@ const Navbar = () => {
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden p-2 text-foreground"
           >
-            {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {isOpen ? <HiX className="w-6 h-6" /> : <HiMenu className="w-6 h-6" />}
           </button>
         </div>
 
@@ -88,7 +89,7 @@ const Navbar = () => {
             ))}
             <Link to="/booking" onClick={() => setIsOpen(false)}>
               <Button className="btn-primary w-full mt-4 rounded-full">
-                <Calendar className="w-4 h-4 mr-2" />
+                <FaCalendarAlt className="w-4 h-4 mr-2" />
                 Book Now
               </Button>
             </Link>

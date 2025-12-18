@@ -1,45 +1,46 @@
 import { motion } from "framer-motion";
-import { Scissors, Sparkles, Heart, Leaf, Crown, Star } from "lucide-react";
+import { FaCut, FaStar, FaHeart, FaLeaf, FaCrown } from "react-icons/fa";
+import { GiSparkles } from "react-icons/gi";
 import { Link } from "react-router-dom";
 
 const services = [
   {
-    icon: Sparkles,
+    icon: GiSparkles,
     title: "Facial Treatments",
     description: "Korean Glass Facial, Lotus Facial, O+ Facial, Aroma Facial & more",
     price: "From ₹499",
     color: "from-primary/20 to-primary/5",
   },
   {
-    icon: Heart,
+    icon: FaHeart,
     title: "Bridal & Party Makeup",
     description: "HD Bridal, Engagement, Party Makeup by expert artists",
     price: "From ₹1200",
     color: "from-rose-gold/20 to-rose-gold/5",
   },
   {
-    icon: Scissors,
+    icon: FaCut,
     title: "Hair Services",
     description: "Hair Spa, Hair Cut, Hair Wash, L'oreal Treatments",
     price: "From ₹200",
     color: "from-accent/20 to-accent/5",
   },
   {
-    icon: Leaf,
+    icon: FaLeaf,
     title: "Body Spa & Massage",
     description: "Full Body Massage, Head Massage, Relaxing treatments",
     price: "From ₹500",
     color: "from-champagne/30 to-champagne/5",
   },
   {
-    icon: Crown,
+    icon: FaCrown,
     title: "Nail Art",
     description: "Nail Extension, Gel Polish, Acrylic Extension, Manicure & Pedicure",
     price: "From ₹299",
     color: "from-gold/20 to-gold/5",
   },
   {
-    icon: Star,
+    icon: FaStar,
     title: "Waxing & Threading",
     description: "Full Body Wax, Rica Wax, D-Tan, Threading, Upper Lip, Forehead",
     price: "From ₹50",
@@ -80,7 +81,7 @@ const ServicesSection = () => {
               transition={{ duration: 0.6, delay: index * 0.1 }}
             >
               <Link to="/services">
-                <div className={`card-elegant group hover:shadow-glow transition-all duration-500 cursor-pointer bg-gradient-to-br ${service.color}`}>
+                <div className={`card-elegant group hover:shadow-glow transition-all duration-500 cursor-pointer bg-gradient-to-br h-full flex flex-col ${service.color}`}>
                   <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-primary-foreground transition-all duration-300">
                     <service.icon className="w-7 h-7 text-primary group-hover:text-primary-foreground transition-colors" />
                   </div>
