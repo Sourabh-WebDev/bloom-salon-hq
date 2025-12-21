@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "@/store/authStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,16 +11,29 @@ import Particles from "@/components/ui/particles";
 const AdminLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (login(username, password)) {
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // IMPORTANT for cookies
+        body: JSON.stringify({
+          email: username, // backend expects `email`
+          password
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error("Invalid credentials");
+      }
+
       toast.success("Login successful!");
       navigate("/admin");
-    } else {
+    } catch (err) {
       toast.error("Invalid credentials!");
     }
   };
@@ -40,7 +52,9 @@ const AdminLogin = () => {
       </Button>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-gray-800">Admin Login</CardTitle>
+          <CardTitle className="text-2xl font-bold text-gray-800">
+            Admin Login
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -68,10 +82,17 @@ const AdminLogin = () => {
               Login
             </Button>
           </form>
+
           <div className="mt-4 p-3 bg-gray-50 rounded-lg border">
-            <p className="text-sm font-medium text-gray-700 mb-2">Demo Credentials:</p>
-            <p className="text-xs text-gray-600">Username: admin</p>
-            <p className="text-xs text-gray-600">Password: admin@123</p>
+            <p className="text-sm font-medium text-gray-700 mb-2">
+              Demo Credentials:
+            </p>
+            <p className="text-xs text-gray-600">
+              Username: admin@salon.com
+            </p>
+            <p className="text-xs text-gray-600">
+              Password: Admin@123
+            </p>
           </div>
         </CardContent>
       </Card>

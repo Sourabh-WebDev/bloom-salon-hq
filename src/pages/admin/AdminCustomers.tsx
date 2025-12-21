@@ -16,23 +16,6 @@ const AdminCustomers = () => {
       customer.phone.includes(searchTerm)
   );
 
-  async function createCustomer() {
-    return fetch("/api/customers", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name: "John Doe",
-        email: "john@example.com",
-      }),
-    });
-  }
-
-  useEffect(() => {
-    createCustomer();
-  }, []);
-
 
 
   return (
