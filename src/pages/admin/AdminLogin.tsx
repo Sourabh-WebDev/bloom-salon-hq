@@ -7,11 +7,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Home } from "lucide-react";
 import Particles from "@/components/ui/particles";
+import { useAuthStore } from "@/store/authStore";
 
 const AdminLogin = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { setAuthenticated } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,7 +33,8 @@ const AdminLogin = () => {
         throw new Error("Invalid credentials");
       }
 
-      toast.success("Login successful!");
+      setAuthenticated(true);
+      toast.success("Login successful!")
       navigate("/admin");
     } catch (err) {
       toast.error("Invalid credentials!");
