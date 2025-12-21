@@ -82,18 +82,6 @@ const AdminLogin = () => {
               Login
             </Button>
           </form>
-
-          <div className="mt-4 p-3 bg-gray-50 rounded-lg border">
-            <p className="text-sm font-medium text-gray-700 mb-2">
-              Demo Credentials:
-            </p>
-            <p className="text-xs text-gray-600">
-              Username: admin@salon.com
-            </p>
-            <p className="text-xs text-gray-600">
-              Password: Admin@123
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>
