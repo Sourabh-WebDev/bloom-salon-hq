@@ -70,6 +70,7 @@ interface AdminStore {
   addService: (service: Omit<Service, "id">) => void;
   updateService: (id: string, service: Partial<Service>) => void;
   deleteService: (id: string) => void;
+  setServices: (services: Service[]) => void;
   addCustomer: (customer: Omit<Customer, "id" | "createdAt">) => void;
   updateCustomer: (id: string, customer: Partial<Customer>) => void;
   addOffer: (offer: Omit<Offer, "id">) => void;
@@ -152,35 +153,7 @@ const initialBookings: Booking[] = [
   },
 ];
 
-const initialServices: Service[] = [
-  { id: "1", name: "Threading", category: "Threading", price: 50, duration: "15 min", description: "Eyebrow, upper lip, forehead threading", isActive: true },
-  { id: "2", name: "Korean Glass Facial", category: "Facial", price: 800, duration: "45 min", description: "Korean glass skin facial treatment", isActive: true },
-  { id: "3", name: "Lotus Facial", category: "Facial", price: 600, duration: "45 min", description: "Lotus herbal facial for glowing skin", isActive: true },
-  { id: "4", name: "Aroma Facial", category: "Facial", price: 500, duration: "45 min", description: "Relaxing aroma facial treatment", isActive: true },
-  { id: "5", name: "O+ Facial", category: "Facial", price: 700, duration: "50 min", description: "Oxygen facial for skin rejuvenation", isActive: true },
-  { id: "6", name: "Hair Spa", category: "Hair", price: 400, duration: "45 min", description: "Deep conditioning hair spa treatment", isActive: true },
-  { id: "7", name: "L'oreal Hair Spa", category: "Hair", price: 600, duration: "60 min", description: "Premium L'oreal hair spa treatment", isActive: true },
-  { id: "8", name: "Hair Cut", category: "Hair", price: 200, duration: "30 min", description: "Professional hair cutting service", isActive: true },
-  { id: "9", name: "Bridal Makeup", category: "Makeup", price: 5000, duration: "2 hrs", description: "Complete bridal makeover", isActive: true },
-  { id: "10", name: "HD Bridal Makeup", category: "Makeup", price: 7000, duration: "2.5 hrs", description: "HD bridal makeup for flawless look", isActive: true },
-  { id: "11", name: "Party Makeup", category: "Makeup", price: 1200, duration: "1 hr", description: "Party ready makeup", isActive: true },
-  { id: "12", name: "HD Party Makeup", category: "Makeup", price: 2000, duration: "1.5 hrs", description: "HD party makeup", isActive: true },
-  { id: "13", name: "Engagement Makeup", category: "Makeup", price: 4000, duration: "2 hrs", description: "Engagement ceremony makeup", isActive: true },
-  { id: "14", name: "Manicure", category: "Nails", price: 300, duration: "30 min", description: "Classic manicure service", isActive: true },
-  { id: "15", name: "Pedicure", category: "Nails", price: 400, duration: "40 min", description: "Classic pedicure service", isActive: true },
-  { id: "16", name: "Nail Extension", category: "Nails", price: 600, duration: "1 hr", description: "Beautiful nail extensions", isActive: true },
-  { id: "17", name: "Gel Polish", category: "Nails", price: 299, duration: "30 min", description: "Long-lasting gel nail polish", isActive: true },
-  { id: "18", name: "Acrylic Extension", category: "Nails", price: 1299, duration: "1.5 hrs", description: "Acrylic nail extensions", isActive: true },
-  { id: "19", name: "Full Hand Wax", category: "Waxing", price: 200, duration: "30 min", description: "Full hand waxing service", isActive: true },
-  { id: "20", name: "Full Body Wax", category: "Waxing", price: 800, duration: "1.5 hrs", description: "Full body waxing service", isActive: true },
-  { id: "21", name: "Rica Full Body Wax", category: "Waxing", price: 1200, duration: "2 hrs", description: "Premium Rica waxing", isActive: true },
-  { id: "22", name: "Half Leg Wax", category: "Waxing", price: 150, duration: "20 min", description: "Half leg waxing", isActive: true },
-  { id: "23", name: "Face D-Tan", category: "D-Tan", price: 200, duration: "20 min", description: "Face de-tan treatment", isActive: true },
-  { id: "24", name: "Full Body D-Tan", category: "D-Tan", price: 600, duration: "1 hr", description: "Full body de-tan treatment", isActive: true },
-  { id: "25", name: "Head Massage", category: "Massage", price: 200, duration: "20 min", description: "Relaxing head massage", isActive: true },
-  { id: "26", name: "Full Body Massage", category: "Massage", price: 1000, duration: "1 hr", description: "Full body relaxing massage", isActive: true },
-  { id: "27", name: "Cleanup", category: "Facial", price: 300, duration: "30 min", description: "Basic face cleanup", isActive: true },
-];
+const initialServices: Service[] = [];
 
 const initialCustomers: Customer[] = [
   { id: "1", name: "Priya Sharma", email: "priya@email.com", phone: "+91 98765 43210", totalVisits: 12, totalSpent: 45000, lastVisit: "2024-12-15", createdAt: "2024-01-10" },
@@ -240,6 +213,11 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
   deleteService: (id) =>
     set((state) => ({
       services: state.services.filter((s) => s.id !== id),
+    })),
+
+  setServices: (services) =>
+    set(() => ({
+      services,
     })),
 
   addCustomer: (customer) =>

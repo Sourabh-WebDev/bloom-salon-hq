@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Plus, Search, Edit2, Trash2, ToggleLeft, ToggleRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,11 +9,32 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/hooks/use-toast";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useAdminStore, Service } from "@/store/adminStore";
+import axios from "axios";
 
 const categories = ["Hair", "Facial", "Makeup", "Spa", "Nails", "Waxing"];
 
 const AdminServices = () => {
-  const { services, addService, updateService, deleteService } = useAdminStore();
+  const { services, addService, updateService, deleteService, setServices } = useAdminStore();
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const { data } = await axios.get("/api/services", {
+          withCredentials: true
+        });
+        setServices(data);
+      } catch (error) {
+        console.error("Failed to fetch services:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load services",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchServices();
+  }, [setServices]);
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
