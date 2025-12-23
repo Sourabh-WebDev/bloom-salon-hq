@@ -17,6 +17,7 @@ export interface Booking {
 
 export interface Service {
   id: string;
+  _id?: string;
   name: string;
   category: string;
   price: number;

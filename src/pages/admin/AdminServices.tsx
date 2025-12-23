@@ -12,30 +12,31 @@ import { useAdminStore, Service } from "@/store/adminStore";
 import axios from "axios";
 
 const categories = ["Hair", "Facial", "Makeup", "Spa", "Nails", "Waxing"];
+const generateId = () => Math.random().toString(36).substring(2, 11);
 
 const AdminServices = () => {
   const { services, addService, updateService, deleteService, setServices } = useAdminStore();
+  const { toast } = useToast();
+
+  const fetchServices = async () => {
+    try {
+      const { data } = await axios.get("/api/services", {
+        withCredentials: true
+      });
+      setServices(data);
+    } catch (error) {
+      console.error("Failed to fetch services:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load services",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const { data } = await axios.get("/api/services", {
-          withCredentials: true
-        });
-        setServices(data);
-      } catch (error) {
-        console.error("Failed to fetch services:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load services",
-          variant: "destructive",
-        });
-      }
-    };
-
     fetchServices();
   }, [setServices]);
-  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -66,7 +67,7 @@ const AdminServices = () => {
     setEditingService(null);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.name || !formData.category || !formData.price) {
       toast({
         title: "Error",
@@ -76,16 +77,32 @@ const AdminServices = () => {
       return;
     }
 
-    if (editingService) {
-      updateService(editingService.id, formData);
-      toast({ title: "Service Updated", description: "Service has been updated successfully" });
-    } else {
-      addService(formData);
-      toast({ title: "Service Added", description: "New service has been added" });
-    }
+    try {
+      if (editingService) {
+        await axios.put(`/api/services?id=${editingService._id}`, formData, {
+          withCredentials: true
+        });
+        updateService(editingService.id, formData);
+        toast({ title: "Service Updated", description: "Service has been updated successfully" });
+      } else {
+        const { data } = await axios.post("/api/services", formData, {
+          withCredentials: true
+        });
+        addService({ ...data, id: data._id || generateId() });
+        toast({ title: "Service Added", description: "New service has been added" });
+      }
 
-    resetForm();
-    setIsAddDialogOpen(false);
+      resetForm();
+      setIsAddDialogOpen(false);
+      fetchServices();
+    } catch (error) {
+      console.error("Failed to save service:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save service",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEdit = (service: Service) => {
@@ -101,17 +118,45 @@ const AdminServices = () => {
     setIsAddDialogOpen(true);
   };
 
-  const handleToggleActive = (service: Service) => {
-    updateService(service.id, { isActive: !service.isActive });
-    toast({
-      title: service.isActive ? "Service Deactivated" : "Service Activated",
-      description: `${service.name} has been ${service.isActive ? "deactivated" : "activated"}`,
-    });
+  const handleToggleActive = async (service: Service) => {
+    try {
+      const serviceId = service._id || service.id;
+      await axios.patch(`/api/services?id=${serviceId}`, {
+        isActive: !service.isActive
+      }, {
+        withCredentials: true
+      });
+      updateService(service.id, { isActive: !service.isActive });
+      toast({
+        title: service.isActive ? "Service Deactivated" : "Service Activated",
+        description: `${service.name} has been ${service.isActive ? "deactivated" : "activated"}`,
+      });
+    } catch (error) {
+      console.error("Failed to toggle service:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update service status",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleDelete = (id: string) => {
-    deleteService(id);
-    toast({ title: "Service Deleted", description: "Service has been removed" });
+  const handleDelete = async (service: Service) => {
+    try {
+      await axios.delete(`/api/services?id=${service._id}`, {
+        withCredentials: true
+      });
+      deleteService(service._id);
+      toast({ title: "Service Deleted", description: "Service has been removed" });
+      fetchServices()
+    } catch (error) {
+      console.error("Failed to delete service:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete service",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -223,7 +268,7 @@ const AdminServices = () => {
                 <Edit2 className="w-4 h-4 mr-1" />
                 Edit
               </Button>
-              <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete(service.id)}>
+              <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10" onClick={() => handleDelete(service)}>
                 <Trash2 className="w-4 h-4" />
               </Button>
             </div>
