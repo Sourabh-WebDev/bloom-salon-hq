@@ -18,9 +18,13 @@ const AdminServices = () => {
   const { services, addService, updateService, deleteService, setServices } = useAdminStore();
   const { toast } = useToast();
 
-  const fetchServices = async () => {
+  const fetchServices = async (searchQuery = "") => {
     try {
-      const { data } = await axios.get("/api/services", {
+      const url = searchQuery 
+        ? `/api/services/search?q=${encodeURIComponent(searchQuery)}`
+        : "/api/services";
+      
+      const { data } = await axios.get(url, {
         withCredentials: true
       });
       setServices(data);
@@ -49,11 +53,16 @@ const AdminServices = () => {
     isActive: true,
   });
 
-  const filteredServices = services.filter(
-    (service) =>
-      service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      service.category.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleSearch = async (query: string) => {
+    setSearchTerm(query);
+    if (query.trim()) {
+      await fetchServices(query.trim());
+    } else {
+      await fetchServices();
+    }
+  };
+
+  const filteredServices = services;
 
   const resetForm = () => {
     setFormData({
@@ -168,7 +177,7 @@ const AdminServices = () => {
             placeholder="Search services..."
             className="pl-10 input-elegant"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
           />
         </div>
 
