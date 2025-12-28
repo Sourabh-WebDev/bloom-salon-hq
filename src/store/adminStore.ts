@@ -2,11 +2,11 @@ import axios from "axios";
 import { create } from "zustand";
 
 export interface Booking {
-  id: string;
+  _id: string; // MongoDB id
   customerName: string;
   customerEmail: string;
   customerPhone: string;
-  service: string;
+  serviceName: string;
   date: string;
   time: string;
   status: "pending" | "confirmed" | "completed" | "cancelled";
@@ -16,9 +16,9 @@ export interface Booking {
   createdAt: string;
 }
 
+
 export interface Service {
-  id: string;
-  _id?: string;
+  _id: string;
   name: string;
   category: string;
   price: number;
@@ -26,6 +26,16 @@ export interface Service {
   description: string;
   isActive: boolean;
 }
+
+export type ServiceInput = {
+  name: string;
+  category: string;
+  price: number;
+  duration: string;
+  description: string;
+  isActive: boolean;
+};
+
 
 export interface Customer {
   id: string;
@@ -73,9 +83,10 @@ interface AdminStore {
   ) => Promise<void>;
   deleteBooking: (id: string) => Promise<void>;
   fetchBookings: () => Promise<void>;
-
-  addService: (service: Omit<Service, "id">) => void;
-  updateService: (id: string, service: Partial<Service>) => void;
+  fetchServices: (query?: string) => Promise<void>;
+  toggleServiceActive: (id: string, isActive: boolean) => Promise<void>;
+  addService: (service: ServiceInput) => Promise<void>;
+  updateService: (id: string, service: Partial<ServiceInput>) => Promise<void>;
   deleteService: (id: string) => void;
   setServices: (services: Service[]) => void;
   addCustomer: (customer: Omit<Customer, "id" | "createdAt">) => void;
@@ -93,7 +104,6 @@ const generateId = () => Math.random().toString(36).substring(2, 11);
 
 // Sample data
 
-const initialServices: Service[] = [];
 
 const initialCustomers: Customer[] = [
   { id: "1", name: "Priya Sharma", email: "priya@email.com", phone: "+91 98765 43210", totalVisits: 12, totalSpent: 45000, lastVisit: "2024-12-15", createdAt: "2024-01-10" },
@@ -117,11 +127,20 @@ const initialReviews: Review[] = [
 
 export const useAdminStore = create<AdminStore>((set, get) => ({
   bookings: [],
-  services: initialServices,
+  services: [],
   customers: initialCustomers,
   offers: initialOffers,
   reviews: initialReviews,
 
+  fetchServices: async (query = "") => {
+    const url = query
+      ? `/api/services/search?q=${encodeURIComponent(query)}`
+      : "/api/services";
+
+    const res = await axios.get(url, { withCredentials: true });
+
+    set({ services: res.data });
+  },
 
   fetchBookings: async () => {
     const res = await axios.get("/api/bookings", { withCredentials: true });
@@ -143,7 +162,7 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
 
     set((state) => ({
       bookings: state.bookings.map((b) =>
-        b.id === id ? { ...b, status } : b
+        b._id === id ? { ...b, status } : b
       ),
     }));
   },
@@ -155,25 +174,62 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
     });
 
     set((state) => ({
-      bookings: state.bookings.filter((b) => b.id !== id),
+      bookings: state.bookings.filter((b) => b._id !== id),
     }));
   },
 
 
-  addService: (service) =>
-    set((state) => ({
-      services: [...state.services, { ...service, id: generateId() }],
-    })),
+  addService: async (service) => {
+    const res = await axios.post("/api/services", service, {
+      withCredentials: true,
+    });
 
-  updateService: (id, service) =>
     set((state) => ({
-      services: state.services.map((s) => (s.id === id ? { ...s, ...service } : s)),
-    })),
+      services: [res.data, ...state.services],
+    }));
+  },
 
-  deleteService: (id) =>
+
+  updateService: async (id, service) => {
+    await axios.put(
+      `/api/services?id=${id}`,
+      service,
+      { withCredentials: true }
+    );
+
     set((state) => ({
-      services: state.services.filter((s) => s.id !== id),
-    })),
+      services: state.services.map((s) =>
+        s._id === id ? { ...s, ...service } : s
+      ),
+    }));
+  },
+
+
+  toggleServiceActive: async (id: string, isActive: boolean) => {
+    await axios.patch(
+      `/api/services?id=${id}`,
+      { isActive },
+      { withCredentials: true }
+    );
+
+    set((state) => ({
+      services: state.services.map((s) =>
+        s._id === id ? { ...s, isActive } : s
+      ),
+    }));
+  },
+
+
+  deleteService: async (id: string) => {
+    await axios.delete(`/api/services?id=${id}`, {
+      withCredentials: true,
+    });
+
+    set((state) => ({
+      services: state.services.filter((s) => s._id !== id),
+    }));
+  },
+
 
   setServices: (services) =>
     set(() => ({
