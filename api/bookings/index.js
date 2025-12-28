@@ -9,8 +9,10 @@ export default async function handler(req, res) {
 
         const client = await clientPromise;
         const db = client.db("salonDB");
+
         const bookingsCollection = db.collection("bookings");
         const servicesCollection = db.collection("services");
+        const customersCollection = db.collection("customers");
 
         /* =====================================================
            GET → Fetch all bookings
@@ -21,7 +23,6 @@ export default async function handler(req, res) {
                 .sort({ createdAt: -1 })
                 .toArray();
 
-            // frontend-friendly shape
             const formatted = bookings.map((b) => ({
                 id: b._id.toString(),
                 customerName: b.customerName,
@@ -41,7 +42,7 @@ export default async function handler(req, res) {
         }
 
         /* =====================================================
-           POST → Create booking (your existing logic)
+           POST → Create booking + sync customer
         ===================================================== */
         if (req.method === "POST") {
             const {
@@ -71,6 +72,8 @@ export default async function handler(req, res) {
                 return res.status(404).json({ message: "Service not found" });
             }
 
+            const bookingAmount = Number(amount) || serviceDoc.price;
+
             const booking = {
                 customerName: customerName.trim(),
                 customerEmail: customerEmail?.trim() || "",
@@ -81,9 +84,8 @@ export default async function handler(req, res) {
 
                 date,
                 time,
-
                 paymentMethod: paymentMethod || "cash",
-                amount: Number(amount) || serviceDoc.price,
+                amount: bookingAmount,
 
                 status: "pending",
                 notes: notes?.trim() || "",
@@ -92,7 +94,44 @@ export default async function handler(req, res) {
                 updatedAt: new Date(),
             };
 
+            // 1️⃣ Insert booking
             const result = await bookingsCollection.insertOne(booking);
+
+            // 2️⃣ Sync customer data
+            const customerFilter = {
+                ...(booking.customerEmail && { email: booking.customerEmail }),
+                ...(booking.customerPhone && { phone: booking.customerPhone }),
+            };
+
+
+            const existingCustomer = await customersCollection.findOne(customerFilter);
+
+            if (existingCustomer) {
+                // Update existing customer
+                await customersCollection.updateOne(
+                    { _id: existingCustomer._id },
+                    {
+                        $inc: {
+                            totalVisits: 1,
+                            totalSpent: bookingAmount,
+                        },
+                        $set: {
+                            lastVisit: date,
+                        },
+                    }
+                );
+            } else {
+                // Create new customer
+                await customersCollection.insertOne({
+                    name: booking.customerName,
+                    email: booking.customerEmail,
+                    phone: booking.customerPhone,
+                    totalVisits: 1,
+                    totalSpent: bookingAmount,
+                    lastVisit: date,
+                    createdAt: new Date(),
+                });
+            }
 
             return res.status(201).json({
                 message: "Booking created successfully",
@@ -101,17 +140,25 @@ export default async function handler(req, res) {
         }
 
         /* =====================================================
-           PATCH → Change booking status
+           PATCH → Update booking status
            body: { id, status }
         ===================================================== */
         if (req.method === "PATCH") {
             const { id, status } = req.body;
 
             if (!id || !status) {
-                return res.status(400).json({ message: "Booking ID and status required" });
+                return res.status(400).json({
+                    message: "Booking ID and status required",
+                });
             }
 
-            const allowedStatus = ["pending", "confirmed", "completed", "cancelled"];
+            const allowedStatus = [
+                "pending",
+                "confirmed",
+                "completed",
+                "cancelled",
+            ];
+
             if (!allowedStatus.includes(status)) {
                 return res.status(400).json({ message: "Invalid status" });
             }
@@ -156,7 +203,6 @@ export default async function handler(req, res) {
         }
 
         return res.status(405).json({ message: "Method Not Allowed" });
-
     } catch (error) {
         return res.status(401).json({ message: error.message });
     }

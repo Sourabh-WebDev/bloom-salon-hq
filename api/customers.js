@@ -2,7 +2,7 @@ import clientPromise from "./_db.js";
 
 export default async function handler(req, res) {
     const client = await clientPromise;
-    const db = client.db("customerDB");
+    const db = client.db("salonDB");
     const customers = db.collection("customers");
 
     if (req.method === "POST") {

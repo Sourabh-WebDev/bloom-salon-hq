@@ -2,11 +2,11 @@ import axios from "axios";
 import { create } from "zustand";
 
 export interface Booking {
-  _id: string; // MongoDB id
+  id: string;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
-  serviceName: string;
+  service: string;
   date: string;
   time: string;
   status: "pending" | "confirmed" | "completed" | "cancelled";
@@ -15,6 +15,7 @@ export interface Booking {
   notes?: string;
   createdAt: string;
 }
+
 
 
 export interface Service {
@@ -38,7 +39,7 @@ export type ServiceInput = {
 
 
 export interface Customer {
-  id: string;
+  _id: string;
   name: string;
   email: string;
   phone: string;
@@ -47,6 +48,7 @@ export interface Customer {
   lastVisit: string;
   createdAt: string;
 }
+
 
 export interface Offer {
   id: string;
@@ -84,6 +86,7 @@ interface AdminStore {
   deleteBooking: (id: string) => Promise<void>;
   fetchBookings: () => Promise<void>;
   fetchServices: (query?: string) => Promise<void>;
+  fetchCustomers: () => Promise<void>;
   toggleServiceActive: (id: string, isActive: boolean) => Promise<void>;
   addService: (service: ServiceInput) => Promise<void>;
   updateService: (id: string, service: Partial<ServiceInput>) => Promise<void>;
@@ -105,13 +108,6 @@ const generateId = () => Math.random().toString(36).substring(2, 11);
 // Sample data
 
 
-const initialCustomers: Customer[] = [
-  { id: "1", name: "Priya Sharma", email: "priya@email.com", phone: "+91 98765 43210", totalVisits: 12, totalSpent: 45000, lastVisit: "2024-12-15", createdAt: "2024-01-10" },
-  { id: "2", name: "Ananya Patel", email: "ananya@email.com", phone: "+91 87654 32109", totalVisits: 8, totalSpent: 28000, lastVisit: "2024-12-10", createdAt: "2024-02-15" },
-  { id: "3", name: "Meera Reddy", email: "meera@email.com", phone: "+91 76543 21098", totalVisits: 15, totalSpent: 62000, lastVisit: "2024-12-12", createdAt: "2023-11-20" },
-  { id: "4", name: "Kavya Nair", email: "kavya@email.com", phone: "+91 65432 10987", totalVisits: 5, totalSpent: 12000, lastVisit: "2024-12-05", createdAt: "2024-06-01" },
-];
-
 const initialOffers: Offer[] = [
   { id: "1", title: "Winter Special Package", description: "Cleanup, Full Hand Wax, Manicure, Threading, Forehead, Upper Lip, Head Massage - Was ₹1299", discountPercent: 54, validFrom: "2024-12-01", validTo: "2025-01-31", isActive: true, usageCount: 45 },
   { id: "2", title: "Glow Up Package", description: "Facial, Full Hand Wax, Half Leg Wax, Manicure, Head Massage, Threading, Upper Lip, Forehead - Was ₹1699", discountPercent: 47, validFrom: "2024-12-01", validTo: "2025-01-31", isActive: true, usageCount: 32 },
@@ -128,7 +124,7 @@ const initialReviews: Review[] = [
 export const useAdminStore = create<AdminStore>((set, get) => ({
   bookings: [],
   services: [],
-  customers: initialCustomers,
+  customers: [],
   offers: initialOffers,
   reviews: initialReviews,
 
@@ -147,6 +143,14 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
     set({ bookings: res.data });
   },
 
+  fetchCustomers: async () => {
+    const res = await axios.get("/api/customers", {
+      withCredentials: true,
+    });
+
+    set({ customers: res.data });
+  },
+
 
   addBooking: (booking) =>
     set((state) => ({
@@ -162,7 +166,7 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
 
     set((state) => ({
       bookings: state.bookings.map((b) =>
-        b._id === id ? { ...b, status } : b
+        b.id === id ? { ...b, status } : b
       ),
     }));
   },
@@ -174,7 +178,7 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
     });
 
     set((state) => ({
-      bookings: state.bookings.filter((b) => b._id !== id),
+      bookings: state.bookings.filter((b) => b.id !== id),
     }));
   },
 
@@ -246,7 +250,7 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
 
   updateCustomer: (id, customer) =>
     set((state) => ({
-      customers: state.customers.map((c) => (c.id === id ? { ...c, ...customer } : c)),
+      customers: state.customers.map((c) => (c._id === id ? { ...c, ...customer } : c)),
     })),
 
   addOffer: (offer) =>

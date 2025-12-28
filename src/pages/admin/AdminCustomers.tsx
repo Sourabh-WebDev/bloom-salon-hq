@@ -6,8 +6,12 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { useAdminStore } from "@/store/adminStore";
 
 const AdminCustomers = () => {
-  const { customers } = useAdminStore();
+  const { customers, fetchCustomers } = useAdminStore();
   const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [fetchCustomers]);
 
   const filteredCustomers = customers.filter(
     (customer) =>
@@ -35,7 +39,7 @@ const AdminCustomers = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredCustomers.map((customer, index) => (
           <motion.div
-            key={customer.id}
+            key={customer._id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.05 }}
