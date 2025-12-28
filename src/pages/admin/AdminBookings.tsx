@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Search, Filter, Eye, Check, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/hooks/use-toast";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useAdminStore, Booking } from "@/store/adminStore";
+import axios from "axios";
+
 
 const AdminBookings = () => {
-  const { bookings, updateBooking, deleteBooking, addBooking, services } = useAdminStore();
+  const { bookings, updateBookingStatus, deleteBooking, addBooking, services, setServices, fetchBookings } = useAdminStore();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -27,6 +29,34 @@ const AdminBookings = () => {
     notes: "",
   });
 
+  const fetchServices = async (searchQuery = "") => {
+    try {
+      const url = searchQuery
+        ? `/api/services/search?q=${encodeURIComponent(searchQuery)}`
+        : "/api/services";
+
+      const { data } = await axios.get(url, {
+        withCredentials: true
+      });
+      setServices(data);
+    } catch (error) {
+      console.error("Failed to fetch services:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load services",
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  useEffect(() => {
+    fetchBookings();
+  }, []);
+
   const filteredBookings = bookings.filter((booking) => {
     const matchesSearch =
       booking.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -36,7 +66,7 @@ const AdminBookings = () => {
   });
 
   const handleStatusChange = (id: string, status: Booking["status"]) => {
-    updateBooking(id, { status });
+    updateBookingStatus(id, status);
     toast({
       title: "Booking Updated",
       description: `Booking status changed to ${status}`,
@@ -51,8 +81,14 @@ const AdminBookings = () => {
     });
   };
 
-  const handleAddBooking = () => {
-    if (!newBooking.customerName || !newBooking.service || !newBooking.date || !newBooking.time) {
+
+  const handleAddBooking = async () => {
+    if (
+      !newBooking.customerName ||
+      !newBooking.service ||
+      !newBooking.date ||
+      !newBooking.time
+    ) {
       toast({
         title: "Error",
         description: "Please fill all required fields",
@@ -61,29 +97,59 @@ const AdminBookings = () => {
       return;
     }
 
-    addBooking({
-      ...newBooking,
-      status: "pending",
-    });
+    try {
+      const res = await axios.post(
+        "/api/bookings",
+        {
+          customerName: newBooking.customerName,
+          customerEmail: newBooking.customerEmail,
+          customerPhone: newBooking.customerPhone,
+          service: newBooking.service,
+          date: newBooking.date,
+          time: newBooking.time,
+          paymentMethod: newBooking.paymentMethod,
+          amount: newBooking.amount,
+          notes: newBooking.notes,
+        },
+        { withCredentials: true }
+      );
 
-    toast({
-      title: "Booking Added",
-      description: "New booking has been created",
-    });
+      // OPTIONAL: optimistic update (keeps UI instant)
+      addBooking({
+        id: Date.now().toString(),
+        ...newBooking,
+        status: "pending",
+        createdAt: new Date().toISOString(),
+      });
 
-    setNewBooking({
-      customerName: "",
-      customerEmail: "",
-      customerPhone: "",
-      service: "",
-      date: "",
-      time: "",
-      paymentMethod: "cash",
-      amount: 0,
-      notes: "",
-    });
-    setIsAddDialogOpen(false);
+      toast({
+        title: "Booking Added",
+        description: "New booking has been created",
+      });
+
+      setNewBooking({
+        customerName: "",
+        customerEmail: "",
+        customerPhone: "",
+        service: "",
+        date: "",
+        time: "",
+        paymentMethod: "cash",
+        amount: 0,
+        notes: "",
+      });
+
+      setIsAddDialogOpen(false);
+
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to create booking",
+        variant: "destructive",
+      });
+    }
   };
+
 
   return (
     <AdminLayout title="Bookings" subtitle="Manage all salon appointments">
@@ -225,21 +291,19 @@ const AdminBookings = () => {
                     <p className="text-sm text-muted-foreground">{booking.time}</p>
                   </td>
                   <td className="py-4 px-4">
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      booking.paymentMethod === "online" ? "bg-primary/10 text-primary" : "bg-accent/30 text-accent-foreground"
-                    }`}>
+                    <span className={`px-2 py-1 rounded text-xs font-medium ${booking.paymentMethod === "online" ? "bg-primary/10 text-primary" : "bg-accent/30 text-accent-foreground"
+                      }`}>
                       {booking.paymentMethod}
                     </span>
                   </td>
                   <td className="py-4 px-4 font-medium text-foreground">₹{booking.amount}</td>
                   <td className="py-4 px-4">
                     <Select value={booking.status} onValueChange={(value) => handleStatusChange(booking.id, value as Booking["status"])}>
-                      <SelectTrigger className={`w-[130px] h-8 text-xs font-medium ${
-                        booking.status === "confirmed" ? "bg-green-100 text-green-700 border-green-200" :
+                      <SelectTrigger className={`w-[130px] h-8 text-xs font-medium ${booking.status === "confirmed" ? "bg-green-100 text-green-700 border-green-200" :
                         booking.status === "pending" ? "bg-yellow-100 text-yellow-700 border-yellow-200" :
-                        booking.status === "completed" ? "bg-blue-100 text-blue-700 border-blue-200" :
-                        "bg-red-100 text-red-700 border-red-200"
-                      }`}>
+                          booking.status === "completed" ? "bg-blue-100 text-blue-700 border-blue-200" :
+                            "bg-red-100 text-red-700 border-red-200"
+                        }`}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

@@ -1,3 +1,4 @@
+import axios from "axios";
 import { create } from "zustand";
 
 export interface Booking {
@@ -65,9 +66,14 @@ interface AdminStore {
   customers: Customer[];
   offers: Offer[];
   reviews: Review[];
-  addBooking: (booking: Omit<Booking, "id" | "createdAt">) => void;
-  updateBooking: (id: string, booking: Partial<Booking>) => void;
-  deleteBooking: (id: string) => void;
+  addBooking: (booking: Booking) => void;
+  updateBookingStatus: (
+    id: string,
+    status: Booking["status"]
+  ) => Promise<void>;
+  deleteBooking: (id: string) => Promise<void>;
+  fetchBookings: () => Promise<void>;
+
   addService: (service: Omit<Service, "id">) => void;
   updateService: (id: string, service: Partial<Service>) => void;
   deleteService: (id: string) => void;
@@ -86,73 +92,6 @@ interface AdminStore {
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
 // Sample data
-const initialBookings: Booking[] = [
-  {
-    id: "1",
-    customerName: "Priya Sharma",
-    customerEmail: "priya@email.com",
-    customerPhone: "+91 98765 43210",
-    service: "Bridal Makeup",
-    date: "2024-12-20",
-    time: "10:00 AM",
-    status: "confirmed",
-    paymentMethod: "online",
-    amount: 5000,
-    createdAt: "2024-12-15",
-  },
-  {
-    id: "2",
-    customerName: "Ananya Patel",
-    customerEmail: "ananya@email.com",
-    customerPhone: "+91 87654 32109",
-    service: "Hair Coloring",
-    date: "2024-12-18",
-    time: "2:00 PM",
-    status: "pending",
-    paymentMethod: "cash",
-    amount: 1500,
-    createdAt: "2024-12-14",
-  },
-  {
-    id: "3",
-    customerName: "Meera Reddy",
-    customerEmail: "meera@email.com",
-    customerPhone: "+91 76543 21098",
-    service: "Full Body Spa",
-    date: "2024-12-19",
-    time: "11:00 AM",
-    status: "confirmed",
-    paymentMethod: "online",
-    amount: 3500,
-    createdAt: "2024-12-13",
-  },
-  {
-    id: "4",
-    customerName: "Kavya Nair",
-    customerEmail: "kavya@email.com",
-    customerPhone: "+91 65432 10987",
-    service: "Facial Treatment",
-    date: "2024-12-17",
-    time: "4:00 PM",
-    status: "completed",
-    paymentMethod: "cash",
-    amount: 800,
-    createdAt: "2024-12-12",
-  },
-  {
-    id: "5",
-    customerName: "Sneha Gupta",
-    customerEmail: "sneha@email.com",
-    customerPhone: "+91 54321 09876",
-    service: "Hair Cut & Styling",
-    date: "2024-12-21",
-    time: "3:00 PM",
-    status: "pending",
-    paymentMethod: "online",
-    amount: 500,
-    createdAt: "2024-12-16",
-  },
-];
 
 const initialServices: Service[] = [];
 
@@ -177,29 +116,49 @@ const initialReviews: Review[] = [
 ];
 
 export const useAdminStore = create<AdminStore>((set, get) => ({
-  bookings: initialBookings,
+  bookings: [],
   services: initialServices,
   customers: initialCustomers,
   offers: initialOffers,
   reviews: initialReviews,
 
+
+  fetchBookings: async () => {
+    const res = await axios.get("/api/bookings", { withCredentials: true });
+    set({ bookings: res.data });
+  },
+
+
   addBooking: (booking) =>
     set((state) => ({
-      bookings: [
-        ...state.bookings,
-        { ...booking, id: generateId(), createdAt: new Date().toISOString().split("T")[0] },
-      ],
+      bookings: [booking, ...state.bookings],
     })),
 
-  updateBooking: (id, booking) =>
+  updateBookingStatus: async (id: string, status: Booking["status"]) => {
+    await axios.patch(
+      "/api/bookings",
+      { id, status },
+      { withCredentials: true }
+    );
+
     set((state) => ({
-      bookings: state.bookings.map((b) => (b.id === id ? { ...b, ...booking } : b)),
-    })),
+      bookings: state.bookings.map((b) =>
+        b.id === id ? { ...b, status } : b
+      ),
+    }));
+  },
 
-  deleteBooking: (id) =>
+  deleteBooking: async (id: string) => {
+    await axios.delete("/api/bookings", {
+      data: { id },
+      withCredentials: true,
+    });
+
     set((state) => ({
       bookings: state.bookings.filter((b) => b.id !== id),
-    })),
+    }));
+  },
+
 
   addService: (service) =>
     set((state) => ({

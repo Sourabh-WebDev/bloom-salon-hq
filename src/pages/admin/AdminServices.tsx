@@ -20,10 +20,10 @@ const AdminServices = () => {
 
   const fetchServices = async (searchQuery = "") => {
     try {
-      const url = searchQuery 
+      const url = searchQuery
         ? `/api/services/search?q=${encodeURIComponent(searchQuery)}`
         : "/api/services";
-      
+
       const { data } = await axios.get(url, {
         withCredentials: true
       });
