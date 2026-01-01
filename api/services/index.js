@@ -4,24 +4,24 @@ import { ObjectId } from "mongodb";
 
 export default async function handler(req, res) {
     try {
-        // Protect route (admin only)
-        verifyAdmin(req);
-
         const client = await clientPromise;
         const db = client.db("salonDB");
         const services = db.collection("services");
 
         /* ======================
-           GET SERVICES
+           GET SERVICES (PUBLIC)
         ====================== */
         if (req.method === "GET") {
             const data = await services
-                .find({})
+                .find({ isActive: true })
                 .sort({ createdAt: -1 })
                 .toArray();
 
             return res.status(200).json(data);
         }
+
+        // Protect other routes (admin only)
+        verifyAdmin(req);
 
         /* ======================
            CREATE SERVICE

@@ -12,11 +12,13 @@ import axios from "axios";
 
 
 const AdminBookings = () => {
-  const { bookings, updateBookingStatus, deleteBooking, addBooking, services, setServices, fetchBookings } = useAdminStore();
+  const { bookings, updateBookingStatus, deleteBooking, addBooking, services, setServices, fetchBookings, customers, fetchCustomers } = useAdminStore();
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
   const [newBooking, setNewBooking] = useState({
     customerName: "",
     customerEmail: "",
@@ -51,11 +53,27 @@ const AdminBookings = () => {
 
   useEffect(() => {
     fetchServices();
+    fetchCustomers();
   }, []);
 
   useEffect(() => {
     fetchBookings();
   }, []);
+
+  const filteredCustomers = customers.filter(customer => 
+    customer.name.toLowerCase().includes(customerSearch.toLowerCase())
+  );
+
+  const handleCustomerSelect = (customer: any) => {
+    setNewBooking({
+      ...newBooking,
+      customerName: customer.name,
+      customerEmail: customer.email,
+      customerPhone: customer.phone
+    });
+    setCustomerSearch(customer.name);
+    setShowCustomerDropdown(false);
+  };
 
   const filteredBookings = bookings.filter((booking) => {
     const matchesSearch =
@@ -114,14 +132,6 @@ const AdminBookings = () => {
         { withCredentials: true }
       );
 
-      // OPTIONAL: optimistic update (keeps UI instant)
-      addBooking({
-        id: Date.now().toString(),
-        ...newBooking,
-        status: "pending",
-        createdAt: new Date().toISOString(),
-      });
-
       toast({
         title: "Booking Added",
         description: "New booking has been created",
@@ -138,8 +148,10 @@ const AdminBookings = () => {
         amount: 0,
         notes: "",
       });
+      setCustomerSearch("");
 
       setIsAddDialogOpen(false);
+      fetchBookings(); // Refresh bookings list
 
     } catch (error: any) {
       toast({
@@ -191,12 +203,34 @@ const AdminBookings = () => {
               <DialogTitle className="font-display">Add New Booking</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 mt-4">
-              <Input
-                placeholder="Customer Name"
-                className="input-elegant"
-                value={newBooking.customerName}
-                onChange={(e) => setNewBooking({ ...newBooking, customerName: e.target.value })}
-              />
+              <div className="relative">
+                <Input
+                  placeholder="Customer Name"
+                  className="input-elegant"
+                  value={customerSearch}
+                  onChange={(e) => {
+                    setCustomerSearch(e.target.value);
+                    setNewBooking({ ...newBooking, customerName: e.target.value });
+                    setShowCustomerDropdown(e.target.value.length > 0);
+                  }}
+                  onFocus={() => setShowCustomerDropdown(customerSearch.length > 0)}
+                  onBlur={() => setTimeout(() => setShowCustomerDropdown(false), 200)}
+                />
+                {showCustomerDropdown && filteredCustomers.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                    {filteredCustomers.map((customer) => (
+                      <div
+                        key={customer._id}
+                        className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                        onClick={() => handleCustomerSelect(customer)}
+                      >
+                        <div className="font-medium">{customer.name}</div>
+                        <div className="text-gray-500 text-xs">{customer.email} • {customer.phone}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <Input
                 placeholder="Email"
                 type="email"
@@ -219,7 +253,7 @@ const AdminBookings = () => {
                 </SelectTrigger>
                 <SelectContent>
                   {services.map((service) => (
-                    <SelectItem key={service.id} value={service.name}>
+                    <SelectItem key={service._id} value={service.name}>
                       {service.name} - ₹{service.price}
                     </SelectItem>
                   ))}

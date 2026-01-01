@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Star, Quote } from "lucide-react";
 import { useAdminStore } from "@/store/adminStore";
+import { useEffect, useState } from "react";
 
 const defaultImages = [
   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
@@ -12,10 +13,18 @@ const defaultImages = [
 
 const TestimonialsSection = () => {
   const { getApprovedReviews } = useAdminStore();
-  const approvedReviews = getApprovedReviews().slice(0, 3); // Show only top 3 reviews
+  const [approvedReviews, setApprovedReviews] = useState([]);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      const reviews = await getApprovedReviews();
+      setApprovedReviews(reviews.slice(0, 3)); // Show only top 3 reviews
+    };
+    fetchReviews();
+  }, []);
 
   const testimonials = approvedReviews.map((review, index) => ({
-    name: review.customerName,
+    name: review.name,
     role: review.service ? `${review.service} Client` : "Valued Client",
     content: review.comment,
     rating: review.rating,
@@ -51,17 +60,17 @@ const TestimonialsSection = () => {
               className="card-elegant relative"
             >
               <Quote className="absolute top-6 right-6 w-10 h-10 text-primary/10" />
-              
+
               <div className="flex gap-1 mb-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
                   <Star key={i} className="w-5 h-5 fill-gold text-gold" />
                 ))}
               </div>
-              
+
               <p className="text-foreground/80 mb-6 italic">
                 "{testimonial.content}"
               </p>
-              
+
               <div className="flex items-center gap-4">
                 <img
                   src={testimonial.image}

@@ -62,14 +62,22 @@ export interface Offer {
 }
 
 export interface Review {
-  id: string;
-  customerName: string;
-  customerEmail: string;
+  _id: string;
+  name: string;
+  customerEmail?: string;
   rating: number;
   comment: string;
   service?: string;
+  serviceId?: string;
   isApproved: boolean;
   createdAt: string;
+}
+
+export interface ReviewStats {
+  totalReviews: number;
+  approvedReviews: number;
+  pendingReviews: number;
+  avgRating: number;
 }
 
 interface AdminStore {
@@ -78,6 +86,7 @@ interface AdminStore {
   customers: Customer[];
   offers: Offer[];
   reviews: Review[];
+  reviewStats: ReviewStats;
   addBooking: (booking: Booking) => void;
   updateBookingStatus: (
     id: string,
@@ -97,10 +106,12 @@ interface AdminStore {
   addOffer: (offer: Omit<Offer, "id">) => void;
   updateOffer: (id: string, offer: Partial<Offer>) => void;
   deleteOffer: (id: string) => void;
-  addReview: (review: Omit<Review, "id" | "createdAt">) => void;
+  addReview: (review: Omit<Review, "_id" | "createdAt">) => Promise<void>;
   updateReview: (id: string, review: Partial<Review>) => void;
   deleteReview: (id: string) => void;
-  getApprovedReviews: () => Review[];
+  getApprovedReviews: () => Promise<Review[]>;
+  fetchReviewStats: () => Promise<void>;
+  approveReview: (id: string) => Promise<void>;
 }
 
 const generateId = () => Math.random().toString(36).substring(2, 11);
@@ -114,26 +125,26 @@ const initialOffers: Offer[] = [
   { id: "3", title: "Complete Care Package", description: "Hair Spa, Hair Cut, Head Massage, Cleanup, Full Hand Wax, Threading, Upper Lip, Forehead - Was ₹2299", discountPercent: 48, validFrom: "2024-12-01", validTo: "2025-01-31", isActive: true, usageCount: 28 },
 ];
 
-const initialReviews: Review[] = [
-  { id: "1", customerName: "Priya Sharma", customerEmail: "priya@email.com", rating: 5, comment: "Aura Bliss Salon transformed my look completely! The team is so professional and the ambiance is absolutely divine.", service: "Bridal Makeup", isApproved: true, createdAt: "2024-12-10" },
-  { id: "2", customerName: "Ananya Patel", customerEmail: "ananya@email.com", rating: 5, comment: "My bridal makeup was flawless. Everyone complimented how beautiful I looked. Thank you Aura Bliss Salon!", service: "HD Bridal Makeup", isApproved: true, createdAt: "2024-12-08" },
-  { id: "3", customerName: "Meera Reddy", customerEmail: "meera@email.com", rating: 5, comment: "The spa treatments here are incredibly relaxing. It's my go-to place for self-care and rejuvenation.", service: "Full Body Massage", isApproved: true, createdAt: "2024-12-05" },
-  { id: "4", customerName: "Kavya Nair", customerEmail: "kavya@email.com", rating: 4, comment: "Great service and friendly staff. Will definitely come back!", service: "Korean Glass Facial", isApproved: false, createdAt: "2024-12-15" },
-];
 
 export const useAdminStore = create<AdminStore>((set, get) => ({
   bookings: [],
   services: [],
   customers: [],
   offers: initialOffers,
-  reviews: initialReviews,
+  reviews: [],
+  reviewStats: {
+    totalReviews: 0,
+    approvedReviews: 0,
+    pendingReviews: 0,
+    avgRating: 0
+  },
 
   fetchServices: async (query = "") => {
     const url = query
       ? `/api/services/search?q=${encodeURIComponent(query)}`
       : "/api/services";
 
-    const res = await axios.get(url, { withCredentials: true });
+    const res = await axios.get(url);
 
     set({ services: res.data });
   },
@@ -268,23 +279,57 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
       offers: state.offers.filter((o) => o.id !== id),
     })),
 
-  addReview: (review) =>
-    set((state) => ({
-      reviews: [
-        ...state.reviews,
-        { ...review, id: generateId(), createdAt: new Date().toISOString().split("T")[0] },
-      ],
-    })),
+  addReview: async (review: Omit<Review, "_id" | "createdAt">) => {
+    const res = await axios.post("/api/reviews", {
+      serviceId: review.serviceId,
+      name: review.name,
+      rating: review.rating,
+      comment: review.comment
+    }, { withCredentials: true });
+
+    // Refresh reviews from API
+    get().fetchReviewStats();
+  },
 
   updateReview: (id, review) =>
     set((state) => ({
-      reviews: state.reviews.map((r) => (r.id === id ? { ...r, ...review } : r)),
+      reviews: state.reviews.map((r) => (r._id === id ? { ...r, ...review } : r)),
     })),
 
   deleteReview: (id) =>
     set((state) => ({
-      reviews: state.reviews.filter((r) => r.id !== id),
+      reviews: state.reviews.filter((r) => r._id !== id),
     })),
 
-  getApprovedReviews: () => get().reviews.filter((r) => r.isApproved),
+  getApprovedReviews: async () => {
+    const res = await axios.get("/api/reviews");
+    return res.data;
+  },
+
+  fetchReviewStats: async () => {
+    const res = await axios.get("/api/reviews?admin=true", {
+      withCredentials: true,
+    });
+
+    set({
+      reviewStats: res.data.stats,
+      reviews: res.data.reviews
+    });
+  },
+
+  approveReview: async (id: string) => {
+    await axios.patch(`/api/reviews/${id}`,
+      { isApproved: true },
+      { withCredentials: true }
+    );
+
+    set((state) => ({
+      reviews: state.reviews.map((r) =>
+        r._id === id ? { ...r, isApproved: true } : r
+      ),
+    }));
+
+    // Refresh stats
+    get().fetchReviewStats();
+  },
 }));

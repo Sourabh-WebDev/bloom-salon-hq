@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Star, Eye, Check, X, Trash2, Filter } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -12,27 +12,33 @@ import { useAdminStore } from "@/store/adminStore";
 import { toast } from "sonner";
 
 const AdminReviews = () => {
-  const { reviews, updateReview, deleteReview } = useAdminStore();
+  const { reviews, reviewStats, updateReview, deleteReview, fetchReviewStats, approveReview } = useAdminStore();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [ratingFilter, setRatingFilter] = useState("all");
 
+  useEffect(() => {
+    fetchReviewStats();
+  }, []);
+
+  console.log(reviews)
+
   const filteredReviews = reviews.filter((review) => {
-    const matchesSearch = review.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         review.comment.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (review.service && review.service.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesStatus = statusFilter === "all" || 
-                         (statusFilter === "approved" && review.isApproved) ||
-                         (statusFilter === "pending" && !review.isApproved);
-    
+    const matchesSearch = (review.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (review.comment || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (review.service && review.service.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const matchesStatus = statusFilter === "all" ||
+      (statusFilter === "approved" && review.isApproved) ||
+      (statusFilter === "pending" && !review.isApproved);
+
     const matchesRating = ratingFilter === "all" || review.rating.toString() === ratingFilter;
-    
+
     return matchesSearch && matchesStatus && matchesRating;
   });
 
-  const handleApprove = (id: string) => {
-    updateReview(id, { isApproved: true });
+  const handleApprove = async (id: string) => {
+    await approveReview(id);
     toast.success("Review approved successfully!");
   };
 
@@ -68,7 +74,7 @@ const AdminReviews = () => {
   };
 
   return (
-    <AdminLayout>
+    <AdminLayout title="Reviews Management">
       <div className="space-y-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -77,7 +83,6 @@ const AdminReviews = () => {
         >
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Reviews Management</h1>
               <p className="text-muted-foreground mt-2">
                 Manage customer reviews and testimonials
               </p>
@@ -92,7 +97,7 @@ const AdminReviews = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Reviews</p>
-                  <p className="text-2xl font-bold">{reviews.length}</p>
+                  <p className="text-2xl font-bold">{reviewStats.totalReviews}</p>
                 </div>
                 <Star className="w-8 h-8 text-primary" />
               </div>
@@ -105,7 +110,7 @@ const AdminReviews = () => {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Approved</p>
                   <p className="text-2xl font-bold text-green-600">
-                    {reviews.filter(r => r.isApproved).length}
+                    {reviewStats.approvedReviews}
                   </p>
                 </div>
                 <Check className="w-8 h-8 text-green-600" />
@@ -119,7 +124,7 @@ const AdminReviews = () => {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Pending</p>
                   <p className="text-2xl font-bold text-yellow-600">
-                    {reviews.filter(r => !r.isApproved).length}
+                    {reviewStats.pendingReviews}
                   </p>
                 </div>
                 <Eye className="w-8 h-8 text-yellow-600" />
@@ -133,7 +138,7 @@ const AdminReviews = () => {
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Avg Rating</p>
                   <p className="text-2xl font-bold">
-                    {reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : "0.0"}
+                    {reviewStats.avgRating}
                   </p>
                 </div>
                 <Star className="w-8 h-8 text-yellow-500 fill-yellow-500" />
@@ -202,7 +207,7 @@ const AdminReviews = () => {
             <div className="space-y-4">
               {filteredReviews.map((review) => (
                 <motion.div
-                  key={review.id}
+                  key={review._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="border rounded-lg p-6 space-y-4"
@@ -210,7 +215,7 @@ const AdminReviews = () => {
                   <div className="flex justify-between items-start">
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
-                        <h3 className="font-semibold text-lg">{review.customerName}</h3>
+                        <h3 className="font-semibold text-lg">{review.name}</h3>
                         {getStatusBadge(review.isApproved)}
                       </div>
                       <div className="flex items-center gap-2">
@@ -232,7 +237,7 @@ const AdminReviews = () => {
                       {!review.isApproved && (
                         <Button
                           size="sm"
-                          onClick={() => handleApprove(review.id)}
+                          onClick={() => handleApprove(review._id)}
                           className="bg-green-600 hover:bg-green-700"
                         >
                           <Check className="w-4 h-4 mr-1" />
@@ -243,7 +248,7 @@ const AdminReviews = () => {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleReject(review.id)}
+                          onClick={() => handleReject(review._id)}
                         >
                           <X className="w-4 h-4 mr-1" />
                           Reject
@@ -266,7 +271,7 @@ const AdminReviews = () => {
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={() => handleDelete(review.id)}
+                              onClick={() => handleDelete(review._id)}
                               className="bg-red-600 hover:bg-red-700"
                             >
                               Delete

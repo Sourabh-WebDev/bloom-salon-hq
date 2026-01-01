@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Star, Send } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,7 @@ import { useAdminStore } from "@/store/adminStore";
 import { toast } from "sonner";
 
 const ReviewForm = () => {
-  const { addReview, services } = useAdminStore();
+  const { addReview, services, fetchServices } = useAdminStore();
   const [formData, setFormData] = useState({
     customerName: "",
     customerEmail: "",
@@ -20,28 +20,36 @@ const ReviewForm = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    fetchServices();
+  }, [fetchServices]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.customerName || !formData.customerEmail || !formData.comment || formData.rating === 0) {
       toast.error("Please fill in all required fields and select a rating.");
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
-      addReview({
-        customerName: formData.customerName,
+      // Find selected service ID
+      const selectedService = services.find(s => s.name === formData.service);
+      
+      // Add review
+      await addReview({
+        name: formData.customerName,
         customerEmail: formData.customerEmail,
         rating: formData.rating,
         comment: formData.comment,
-        service: formData.service || undefined,
-        isApproved: false, // Reviews need admin approval
+        serviceId: selectedService?._id,
+        isApproved: false,
       });
 
       toast.success("Thank you for your review! It will be published after approval.");
-      
+
       // Reset form
       setFormData({
         customerName: "",
@@ -122,9 +130,9 @@ const ReviewForm = () => {
                       <SelectValue placeholder="Select the service you experienced" />
                     </SelectTrigger>
                     <SelectContent>
-                      {services.filter(s => s.isActive).map((service) => (
-                        <SelectItem key={service.id} value={service.name}>
-                          {service.name}
+                      {services.map((service) => (
+                        <SelectItem key={service._id} value={service.name}>
+                          {service.name} - ₹{service.price}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -144,11 +152,10 @@ const ReviewForm = () => {
                         className="transition-colors hover:scale-110 transform"
                       >
                         <Star
-                          className={`w-8 h-8 ${
-                            star <= formData.rating
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-300 hover:text-yellow-400"
-                          }`}
+                          className={`w-8 h-8 ${star <= formData.rating
+                            ? "fill-yellow-400 text-yellow-400"
+                            : "text-gray-300 hover:text-yellow-400"
+                            }`}
                         />
                       </button>
                     ))}
