@@ -19,9 +19,7 @@ const AdminReviews = () => {
 
   useEffect(() => {
     fetchReviewStats();
-  }, []);
-
-  console.log(reviews)
+  }, [fetchReviewStats]);
 
   const filteredReviews = reviews.filter((review) => {
     const matchesSearch = (review.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useMemo } from "react";
 import {
   Calendar,
   DollarSign,
@@ -13,20 +14,27 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useAdminStore } from "@/store/adminStore";
 
-const revenueData = [
-  { name: "Mon", cash: 4200, online: 6800 },
-  { name: "Tue", cash: 3800, online: 5200 },
-  { name: "Wed", cash: 5100, online: 7300 },
-  { name: "Thu", cash: 4600, online: 6100 },
-  { name: "Fri", cash: 6200, online: 8900 },
-  { name: "Sat", cash: 7800, online: 11200 },
-  { name: "Sun", cash: 5400, online: 7600 },
-];
+const getDateKey = (date: Date) => {
+  const year = date.getFullYear();
+  const month = `${date.getMonth() + 1}`.padStart(2, "0");
+  const day = `${date.getDate()}`.padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
-const paymentDistribution = [
-  { name: "Online", value: 65, color: "hsl(350, 50%, 65%)" },
-  { name: "Cash", value: 35, color: "hsl(40, 60%, 70%)" },
-];
+const parseBookingDate = (rawDate: string) => {
+  const parsed = new Date(rawDate);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed;
+  }
+  return new Date(`${rawDate}T00:00:00`);
+};
+
+const getChangePercent = (current: number, previous: number) => {
+  if (previous <= 0) {
+    return current > 0 ? 100 : 0;
+  }
+  return ((current - previous) / previous) * 100;
+};
 
 const AdminDashboard = () => {
   const { bookings, customers } = useAdminStore();
@@ -35,17 +43,101 @@ const AdminDashboard = () => {
     (b) => b.status === "pending" || b.status === "confirmed"
   );
 
-  const totalRevenue = bookings
-    .filter((b) => b.status === "completed")
-    .reduce((sum, b) => sum + b.amount, 0);
+  const {
+    totalRevenue,
+    avgBookingValue,
+    revenueData,
+    paymentDistribution,
+    onlineShare,
+    cashShare,
+    revenueChange,
+    avgBookingChange,
+  } = useMemo(() => {
+    const revenueBookings = bookings.filter((b) => b.status !== "cancelled");
+    const totalRevenue = revenueBookings.reduce((sum, b) => sum + b.amount, 0);
+    const avgBookingValue = revenueBookings.length ? totalRevenue / revenueBookings.length : 0;
 
-  const cashRevenue = bookings
-    .filter((b) => b.status === "completed" && b.paymentMethod === "cash")
-    .reduce((sum, b) => sum + b.amount, 0);
+    const now = new Date();
+    const startCurrent = new Date(now);
+    startCurrent.setHours(0, 0, 0, 0);
+    startCurrent.setDate(startCurrent.getDate() - 6);
 
-  const onlineRevenue = bookings
-    .filter((b) => b.status === "completed" && b.paymentMethod === "online")
-    .reduce((sum, b) => sum + b.amount, 0);
+    const endCurrent = new Date(now);
+    endCurrent.setHours(23, 59, 59, 999);
+
+    const startPrevious = new Date(startCurrent);
+    startPrevious.setDate(startPrevious.getDate() - 7);
+
+    const endPrevious = new Date(startCurrent);
+    endPrevious.setMilliseconds(endPrevious.getMilliseconds() - 1);
+
+    const currentWeekBookings = revenueBookings.filter((booking) => {
+      const bookingDate = parseBookingDate(booking.date);
+      return bookingDate >= startCurrent && bookingDate <= endCurrent;
+    });
+
+    const previousWeekBookings = revenueBookings.filter((booking) => {
+      const bookingDate = parseBookingDate(booking.date);
+      return bookingDate >= startPrevious && bookingDate <= endPrevious;
+    });
+
+    const currentWeekRevenue = currentWeekBookings.reduce((sum, booking) => sum + booking.amount, 0);
+    const previousWeekRevenue = previousWeekBookings.reduce((sum, booking) => sum + booking.amount, 0);
+    const currentWeekAvg = currentWeekBookings.length ? currentWeekRevenue / currentWeekBookings.length : 0;
+    const previousWeekAvg = previousWeekBookings.length ? previousWeekRevenue / previousWeekBookings.length : 0;
+
+    const revenueChange = getChangePercent(currentWeekRevenue, previousWeekRevenue);
+    const avgBookingChange = getChangePercent(currentWeekAvg, previousWeekAvg);
+
+    const buckets = Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(startCurrent);
+      date.setDate(startCurrent.getDate() + index);
+      return {
+        name: date.toLocaleDateString("en-US", { weekday: "short" }),
+        key: getDateKey(date),
+        cash: 0,
+        online: 0,
+      };
+    });
+
+    const bucketByKey = new Map(buckets.map((bucket) => [bucket.key, bucket]));
+    currentWeekBookings.forEach((booking) => {
+      const key = getDateKey(parseBookingDate(booking.date));
+      const bucket = bucketByKey.get(key);
+      if (!bucket) return;
+      if (booking.paymentMethod === "cash") {
+        bucket.cash += booking.amount;
+      } else {
+        bucket.online += booking.amount;
+      }
+    });
+
+    const revenueData = buckets.map(({ key, ...bucket }) => bucket);
+    const cashRevenue = revenueBookings
+      .filter((b) => b.paymentMethod === "cash")
+      .reduce((sum, b) => sum + b.amount, 0);
+    const onlineRevenue = revenueBookings
+      .filter((b) => b.paymentMethod === "online")
+      .reduce((sum, b) => sum + b.amount, 0);
+    const onlineShare = totalRevenue ? (onlineRevenue / totalRevenue) * 100 : 0;
+    const cashShare = totalRevenue ? (cashRevenue / totalRevenue) * 100 : 0;
+
+    const paymentDistribution = [
+      { name: "Online", value: Number(onlineShare.toFixed(1)), color: "hsl(350, 50%, 65%)" },
+      { name: "Cash", value: Number(cashShare.toFixed(1)), color: "hsl(40, 60%, 70%)" },
+    ];
+
+    return {
+      totalRevenue,
+      avgBookingValue,
+      revenueData,
+      paymentDistribution,
+      onlineShare,
+      cashShare,
+      revenueChange,
+      avgBookingChange,
+    };
+  }, [bookings]);
 
   const stats = [
     {
@@ -58,9 +150,9 @@ const AdminDashboard = () => {
     },
     {
       title: "Total Revenue",
-      value: `₹${(totalRevenue + 45800).toLocaleString()}`,
-      change: "+8.2%",
-      isPositive: true,
+      value: `₹${totalRevenue.toLocaleString()}`,
+      change: `${revenueChange >= 0 ? "+" : ""}${revenueChange.toFixed(1)}%`,
+      isPositive: revenueChange >= 0,
       icon: DollarSign,
       color: "from-accent/30 to-accent/5",
     },
@@ -74,9 +166,9 @@ const AdminDashboard = () => {
     },
     {
       title: "Avg. Booking Value",
-      value: "₹2,450",
-      change: "-2.1%",
-      isPositive: false,
+      value: `₹${Math.round(avgBookingValue).toLocaleString()}`,
+      change: `${avgBookingChange >= 0 ? "+" : ""}${avgBookingChange.toFixed(1)}%`,
+      isPositive: avgBookingChange >= 0,
       icon: TrendingUp,
       color: "from-gold/20 to-gold/5",
     },
@@ -216,14 +308,14 @@ const AdminDashboard = () => {
               <CreditCard className="w-5 h-5 text-primary" />
               <div>
                 <p className="text-sm text-muted-foreground">Online</p>
-                <p className="font-semibold text-foreground">65%</p>
+                <p className="font-semibold text-foreground">{onlineShare.toFixed(1)}%</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <Banknote className="w-5 h-5 text-accent" />
               <div>
                 <p className="text-sm text-muted-foreground">Cash</p>
-                <p className="font-semibold text-foreground">35%</p>
+                <p className="font-semibold text-foreground">{cashShare.toFixed(1)}%</p>
               </div>
             </div>
           </div>

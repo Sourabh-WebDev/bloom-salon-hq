@@ -318,10 +318,7 @@ export const useAdminStore = create<AdminStore>((set, get) => ({
   },
 
   approveReview: async (id: string) => {
-    await axios.patch(`/api/reviews/${id}`,
-      { isApproved: true },
-      { withCredentials: true }
-    );
+    await axios.patch(`/api/reviews/${id}/approve`, {}, { withCredentials: true });
 
     set((state) => ({
       reviews: state.reviews.map((r) =>

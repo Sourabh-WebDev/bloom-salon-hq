@@ -60,7 +60,7 @@ const AdminBookings = () => {
     fetchBookings();
   }, []);
 
-  const filteredCustomers = customers.filter(customer => 
+  const filteredCustomers = customers.filter(customer =>
     customer.name.toLowerCase().includes(customerSearch.toLowerCase())
   );
 
@@ -350,14 +350,14 @@ const AdminBookings = () => {
                   </td>
                   <td className="py-4 px-4">
                     <div className="flex items-center gap-2">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600 hover:bg-green-50"
-                        onClick={() => handleStatusChange(booking.id, "confirmed")}>
+                      {booking.status === "confirmed" && <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600 hover:bg-green-50"
+                        onClick={() => handleStatusChange(booking.id, "completed")}>
                         <Check className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:bg-red-50"
+                      </Button>}
+                      {/* <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600 hover:bg-red-50"
                         onClick={() => handleDelete(booking.id)}>
                         <Trash2 className="w-4 h-4" />
-                      </Button>
+                      </Button> */}
                     </div>
                   </td>
                 </tr>

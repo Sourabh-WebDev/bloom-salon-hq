@@ -18,7 +18,7 @@ export default async function handler(req, res) {
 
             await reviews.updateOne(
                 { _id: new ObjectId(id) },
-                { $set: { isApproved } }
+                { $set: { isApproved, updatedAt: new Date() } }
             );
 
             return res.status(200).json({ message: "Review updated successfully" });

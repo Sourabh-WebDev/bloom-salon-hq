@@ -1,5 +1,6 @@
 import clientPromise from "../_db.js";
 import { ObjectId } from "mongodb";
+import { buildGoogleReviewDocument } from "../models/GoogleReview.js";
 
 export default async function handler(req, res) {
     try {
@@ -28,7 +29,7 @@ GET APPROVED REVIEWS ONLY
 
                 const approvedReviews = await reviews
                     .find(filter)
-                    .sort({ createdAt: -1 })
+                    .sort({ rating: -1, createdAt: -1 })
                     .toArray();
 
                 return res.status(200).json(approvedReviews);
@@ -84,7 +85,7 @@ GET APPROVED REVIEWS ONLY
             // Normal reviews list (approved only)
             const reviewsList = await reviews
                 .find({ ...baseFilter, isApproved: true })
-                .sort({ createdAt: -1 })
+                .sort({ rating: -1, createdAt: -1 })
                 .toArray();
 
             // If stats not required → old behavior
@@ -138,7 +139,25 @@ GET APPROVED REVIEWS ONLY
            POST REVIEW
         ====================== */
         if (req.method === "POST") {
-            const { serviceId, name, rating, comment } = req.body;
+            const { serviceId, name, rating, comment, authorName, text, profilePhoto, reviewTime } = req.body;
+
+            // Supports importing Google reviews without changing existing route.
+            if (authorName) {
+                const googleReview = buildGoogleReviewDocument({
+                    authorName,
+                    rating,
+                    text,
+                    profilePhoto,
+                    reviewTime,
+                    isApproved: req.body.isApproved
+                });
+
+                await reviews.insertOne(googleReview);
+
+                return res.status(201).json({
+                    message: "Google review imported successfully"
+                });
+            }
 
             if (!serviceId || !name || !rating) {
                 return res.status(400).json({
@@ -158,7 +177,8 @@ GET APPROVED REVIEWS ONLY
                 rating: Number(rating),
                 comment: comment?.trim() || "",
                 isApproved: false,
-                createdAt: new Date()
+                createdAt: new Date(),
+                updatedAt: new Date()
             };
 
             await reviews.insertOne(review);
