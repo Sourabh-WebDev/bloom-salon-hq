@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Star, Eye, Check, X, Trash2, Filter } from "lucide-react";
+import { Star, Eye, Check, X, Trash2, Filter, Upload, EyeOff } from "lucide-react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -37,14 +37,14 @@ const AdminReviews = () => {
     return matchesSearch && matchesStatus && matchesRating;
   });
 
-  const handleApprove = async (id: string) => {
+  const handlePublish = async (id: string) => {
     await approveReview(id);
-    toast.success("Review approved successfully!");
+    toast.success("Review published successfully!");
   };
 
-  const handleReject = (id: string) => {
+  const handleUnpublish = (id: string) => {
     updateReview(id, { isApproved: false });
-    toast.success("Review rejected successfully!");
+    toast.success("Review unpublished successfully!");
   };
 
   const handleDelete = (id: string) => {
@@ -64,11 +64,11 @@ const AdminReviews = () => {
   const getStatusBadge = (isApproved: boolean) => {
     return isApproved ? (
       <Badge variant="default" className="bg-green-100 text-green-800">
-        Approved
+        Published
       </Badge>
     ) : (
-      <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-        Pending
+      <Badge variant="secondary" className="bg-gray-100 text-gray-800">
+        Unpublished
       </Badge>
     );
   };
@@ -108,7 +108,7 @@ const AdminReviews = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Approved</p>
+                  <p className="text-sm font-medium text-muted-foreground">Published</p>
                   <p className="text-2xl font-bold text-green-600">
                     {reviewStats.approvedReviews}
                   </p>
@@ -122,7 +122,7 @@ const AdminReviews = () => {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">Pending</p>
+                  <p className="text-sm font-medium text-muted-foreground">Unpublished</p>
                   <p className="text-2xl font-bold text-yellow-600">
                     {reviewStats.pendingReviews}
                   </p>
@@ -173,8 +173,8 @@ const AdminReviews = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="approved">Published</SelectItem>
+                    <SelectItem value="pending">Unpublished</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -234,24 +234,23 @@ const AdminReviews = () => {
                       </p>
                     </div>
                     <div className="flex gap-2">
-                      {!review.isApproved && (
+                      {!review.isApproved ? (
                         <Button
                           size="sm"
-                          onClick={() => handleApprove(review._id)}
+                          onClick={() => handlePublish(review._id)}
                           className="bg-green-600 hover:bg-green-700"
                         >
-                          <Check className="w-4 h-4 mr-1" />
-                          Approve
+                          <Upload className="w-4 h-4 mr-1" />
+                          Publish
                         </Button>
-                      )}
-                      {review.isApproved && (
+                      ) : (
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleReject(review._id)}
+                          onClick={() => handleUnpublish(review._id)}
                         >
-                          <X className="w-4 h-4 mr-1" />
-                          Reject
+                          <EyeOff className="w-4 h-4 mr-1" />
+                          Unpublish
                         </Button>
                       )}
                       <AlertDialog>

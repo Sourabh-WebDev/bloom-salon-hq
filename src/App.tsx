@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import Index from "./pages/Index";
 import ProtectedRoute from "./components/ProtectedRoute";
+import SprayLoader from "./components/SprayLoader";
 
 const BookingPage = lazy(() => import("./pages/BookingPage"));
 const ServicesPage = lazy(() => import("./pages/ServicesPage"));
@@ -31,7 +32,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><SprayLoader /></div>}>
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/booking" element={<BookingPage />} />

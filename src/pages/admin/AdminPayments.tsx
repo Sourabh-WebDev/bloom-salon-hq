@@ -3,44 +3,56 @@ import { CreditCard, Banknote, TrendingUp, ArrowUpRight, ArrowDownRight } from "
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { useAdminStore } from "@/store/adminStore";
-
-const monthlyData = [
-  { name: "Jan", cash: 32000, online: 48000 },
-  { name: "Feb", cash: 28000, online: 52000 },
-  { name: "Mar", cash: 35000, online: 58000 },
-  { name: "Apr", cash: 42000, online: 62000 },
-  { name: "May", cash: 38000, online: 68000 },
-  { name: "Jun", cash: 45000, online: 75000 },
-];
-
-const dailyTrend = [
-  { day: "1", amount: 8500 },
-  { day: "5", amount: 12000 },
-  { day: "10", amount: 9800 },
-  { day: "15", amount: 15200 },
-  { day: "20", amount: 11500 },
-  { day: "25", amount: 18000 },
-  { day: "30", amount: 14500 },
-];
+import { useMemo } from "react";
 
 const AdminPayments = () => {
   const { bookings } = useAdminStore();
 
-  const totalCash = bookings
-    .filter((b) => b.status === "completed" && b.paymentMethod === "cash")
-    .reduce((sum, b) => sum + b.amount, 0) + 125000;
+  const { totalCash, totalOnline, pendingPayments, recentTransactions, monthlyData, dailyTrend } = useMemo(() => {
+    const completedAndConfirmed = bookings.filter((b) => b.status === "completed" || b.status === "confirmed");
+    
+    const totalCash = completedAndConfirmed
+      .filter((b) => b.paymentMethod === "cash")
+      .reduce((sum, b) => sum + b.amount, 0);
 
-  const totalOnline = bookings
-    .filter((b) => b.status === "completed" && b.paymentMethod === "online")
-    .reduce((sum, b) => sum + b.amount, 0) + 285000;
+    const totalOnline = completedAndConfirmed
+      .filter((b) => b.paymentMethod === "online")
+      .reduce((sum, b) => sum + b.amount, 0);
 
-  const pendingPayments = bookings
-    .filter((b) => b.status === "pending" || b.status === "confirmed")
-    .reduce((sum, b) => sum + b.amount, 0);
+    const pendingPayments = bookings
+      .filter((b) => b.status === "pending")
+      .reduce((sum, b) => sum + b.amount, 0);
 
-  const recentTransactions = bookings
-    .filter((b) => b.status === "completed")
-    .slice(0, 8);
+    const recentTransactions = completedAndConfirmed.slice(-8).reverse();
+
+    // Monthly data from bookings
+    const monthlyMap = new Map();
+    completedAndConfirmed.forEach((b) => {
+      const date = new Date(b.date);
+      const month = date.toLocaleString('en', { month: 'short' });
+      if (!monthlyMap.has(month)) {
+        monthlyMap.set(month, { name: month, cash: 0, online: 0 });
+      }
+      const data = monthlyMap.get(month);
+      if (b.paymentMethod === "cash") data.cash += b.amount;
+      else data.online += b.amount;
+    });
+    const monthlyData = Array.from(monthlyMap.values()).slice(-6);
+
+    // Daily trend from bookings
+    const dailyMap = new Map();
+    completedAndConfirmed.forEach((b) => {
+      const date = new Date(b.date);
+      const day = date.getDate().toString();
+      dailyMap.set(day, (dailyMap.get(day) || 0) + b.amount);
+    });
+    const dailyTrend = Array.from(dailyMap.entries())
+      .map(([day, amount]) => ({ day, amount }))
+      .sort((a, b) => parseInt(a.day) - parseInt(b.day))
+      .slice(-7);
+
+    return { totalCash, totalOnline, pendingPayments, recentTransactions, monthlyData, dailyTrend };
+  }, [bookings]);
 
   return (
     <AdminLayout title="Payments" subtitle="Monitor cash and online payment flows">

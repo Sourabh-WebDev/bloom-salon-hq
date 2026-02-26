@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAdminStore } from "@/store/adminStore";
 import { toast } from "sonner";
+import SprayLoader from "@/components/SprayLoader";
 
 const ReviewForm = () => {
   const { addReview, services, fetchServices } = useAdminStore();
@@ -184,7 +185,10 @@ const ReviewForm = () => {
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    "Submitting..."
+                    <span className="flex items-center justify-center gap-3">
+                      <SprayLoader compact showMessage={false} />
+                      <span>Submitting...</span>
+                    </span>
                   ) : (
                     <>
                       <Send className="w-5 h-5 mr-2" />
