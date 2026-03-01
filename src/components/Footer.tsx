@@ -82,7 +82,17 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-border mt-12 pt-8 text-center text-muted-foreground">
-          <p>© 2024 Aura Bliss Salon. All rights reserved.</p>
+          <p>
+            © <span id="year"></span> Aura Bliss Salon. All rights reserved. |
+            Designed & Developed by {""}
+            <a href="https://www.thewemade.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', fontWeight: 600, color: 'inherit' }}>
+              TheWeMade
+            </a>
+          </p>
+
+          <script>
+            document.getElementById("year").textContent = new Date().getFullYear();
+          </script>
         </div>
       </div>
     </footer>
